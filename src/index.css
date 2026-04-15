@@ -1,0 +1,211 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Primitive Palette ─────────────────────────────────────────────────── */
+:root {
+  /* Neutrals */
+  --primitive-neutral-0:   #FFFFFF;
+  --primitive-neutral-50:  #F8F9FA;
+  --primitive-neutral-100: #EFF0F1;
+  --primitive-neutral-200: #D9DBDD;
+  --primitive-neutral-300: #B0B4B8;
+  --primitive-neutral-400: #6F767E;
+  --primitive-neutral-500: #4A5057;
+  --primitive-neutral-700: #1A1D1F;
+  --primitive-neutral-900: #0F1115;
+  --primitive-neutral-950: #080A0C;
+
+  /* Brand */
+  --primitive-brand-50:    #EEF1FF;
+  --primitive-brand-100:   #D9DFFE;
+  --primitive-brand-500:   #2D46B9;
+  --primitive-brand-600:   #2339A0;
+  --primitive-brand-700:   #1B2C80;
+
+  /* Positive */
+  --primitive-green-50:    #E6F9F2;
+  --primitive-green-500:   #00B37E;
+  --primitive-green-700:   #007A55;
+
+  /* Negative */
+  --primitive-red-50:      #FFF0F0;
+  --primitive-red-500:     #FF4D4D;
+  --primitive-red-700:     #CC2E2E;
+
+  /* Warning */
+  --primitive-amber-50:    #FFF8E6;
+  --primitive-amber-500:   #F5A623;
+  --primitive-amber-700:   #C27D0A;
+
+  /* Info */
+  --primitive-blue-50:     #EBF5FF;
+  --primitive-blue-500:    #1A8CFF;
+  --primitive-blue-700:    #0060CC;
+}
+
+/* ─── Semantic Tokens — Light Mode ──────────────────────────────────────── */
+:root {
+  /* Backgrounds */
+  --color-bg-app:            var(--primitive-neutral-50);
+  --color-bg-surface:        var(--primitive-neutral-0);
+  --color-bg-surface-raised: var(--primitive-neutral-0);
+  --color-bg-subtle:         var(--primitive-neutral-50);
+  --color-bg-inverse:        var(--primitive-neutral-900);
+
+  /* Borders */
+  --color-border-default:    var(--primitive-neutral-100);
+  --color-border-strong:     var(--primitive-neutral-200);
+  --color-border-focus:      var(--primitive-brand-500);
+  --color-border-error:      var(--primitive-red-500);
+
+  /* Text */
+  --color-text-primary:      var(--primitive-neutral-700);
+  --color-text-secondary:    var(--primitive-neutral-400);
+  --color-text-placeholder:  var(--primitive-neutral-300);
+  --color-text-disabled:     var(--primitive-neutral-300);
+  --color-text-inverse:      var(--primitive-neutral-0);
+  --color-text-link:         var(--primitive-brand-500);
+
+  /* Interactive / Brand */
+  --color-action-primary:          var(--primitive-neutral-900);
+  --color-action-primary-hover:    var(--primitive-neutral-700);
+  --color-action-primary-text:     var(--primitive-neutral-0);
+  --color-action-secondary:        var(--primitive-neutral-0);
+  --color-action-secondary-border: var(--primitive-neutral-200);
+  --color-action-secondary-hover:  var(--primitive-neutral-50);
+
+  /* Data Semantic */
+  --color-positive:        var(--primitive-green-500);
+  --color-positive-subtle: var(--primitive-green-50);
+  --color-negative:        var(--primitive-red-500);
+  --color-negative-subtle: var(--primitive-red-50);
+  --color-warning:         var(--primitive-amber-500);
+  --color-warning-subtle:  var(--primitive-amber-50);
+  --color-info:            var(--primitive-blue-500);
+  --color-info-subtle:     var(--primitive-blue-50);
+
+  /* Elevation */
+  --shadow-1: 0 1px 2px rgba(0,0,0,0.04), 0 1px 4px rgba(0,0,0,0.04);
+  --shadow-2: 0 2px 8px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
+  --shadow-3: 0 8px 24px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
+  --shadow-4: 0 16px 48px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.06);
+
+  /* Typography */
+  --font-display: 'DM Sans', sans-serif;
+  --font-body:    'DM Sans', sans-serif;
+  --font-mono:    'DM Mono', 'Fira Code', monospace;
+
+  /* Motion */
+  --duration-instant:    80ms;
+  --duration-fast:       150ms;
+  --duration-standard:   220ms;
+  --duration-deliberate: 350ms;
+  --easing-standard:   cubic-bezier(0.2, 0, 0, 1);
+  --easing-decelerate: cubic-bezier(0, 0, 0.2, 1);
+  --easing-accelerate: cubic-bezier(0.4, 0, 1, 1);
+
+  /* Spacing */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* Border Radius */
+  --radius-1:    4px;
+  --radius-2:    8px;
+  --radius-3:    12px;
+  --radius-4:    16px;
+  --radius-5:    24px;
+  --radius-pill: 9999px;
+}
+
+/* ─── Semantic Tokens — Dark Mode (kept for future use) ─────────────────── */
+[data-theme="dark"] {
+  --color-bg-app:            #0F1115;
+  --color-bg-surface:        #16191E;
+  --color-bg-surface-raised: #1E2229;
+  --color-bg-subtle:         #12151A;
+  --color-bg-inverse:        #FFFFFF;
+
+  --color-border-default:    rgba(255,255,255,0.08);
+  --color-border-strong:     rgba(255,255,255,0.14);
+  --color-border-focus:      #5A76E8;
+  --color-border-error:      #FF6B6B;
+
+  --color-text-primary:      #F1F3F5;
+  --color-text-secondary:    #868E96;
+  --color-text-placeholder:  #4A5057;
+  --color-text-disabled:     #4A5057;
+  --color-text-inverse:      #0F1115;
+  --color-text-link:         #7B96FF;
+
+  --color-action-primary:          #FFFFFF;
+  --color-action-primary-hover:    #D9DBDD;
+  --color-action-primary-text:     #0F1115;
+  --color-action-secondary:        transparent;
+  --color-action-secondary-border: rgba(255,255,255,0.14);
+  --color-action-secondary-hover:  rgba(255,255,255,0.06);
+
+  --color-positive:        #2DD4A0;
+  --color-positive-subtle: rgba(45,212,160,0.12);
+  --color-negative:        #FF6B6B;
+  --color-negative-subtle: rgba(255,107,107,0.12);
+  --color-warning:         #FFBC42;
+  --color-warning-subtle:  rgba(255,188,66,0.12);
+  --color-info:            #60AFFE;
+  --color-info-subtle:     rgba(96,175,254,0.12);
+
+  --shadow-1: 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-2: 0 2px 8px rgba(0,0,0,0.4);
+  --shadow-3: 0 8px 24px rgba(0,0,0,0.5);
+  --shadow-4: 0 16px 48px rgba(0,0,0,0.6);
+}
+
+/* ─── Base Reset ─────────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-app);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Focus Visible ──────────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 2px;
+}
+
+/* ─── Scrollbar ──────────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: var(--radius-pill);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-placeholder);
+}

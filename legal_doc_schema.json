@@ -1,0 +1,336 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "legal-doc-digitization-schema",
+  "title": "Legal Document Digitization & Review App — Data Schema",
+  "description": "Schema for extracting, validating, and reviewing clauses from legal contracts. Designed for business teams with legal-adjacent expertise. Built around a Purchase & Sale Agreement as the reference document type.",
+
+  "definitions": {
+
+    "ClauseType": {
+      "type": "string",
+      "enum": [
+        "parties",
+        "financial_terms",
+        "indemnification",
+        "liability_limits",
+        "term_and_termination",
+        "non_compete",
+        "governing_law"
+      ],
+      "description": "The legal category of an extracted clause."
+    },
+
+    "Severity": {
+      "type": "string",
+      "enum": ["critical", "warning", "info"],
+      "description": "critical = requires action before signing. warning = unusual, reviewer should assess. info = notable but low risk."
+    },
+
+    "FlagStatus": {
+      "type": "string",
+      "enum": ["open", "accepted", "resolved"],
+      "description": "open = not yet reviewed. accepted = reviewer acknowledged risk. resolved = issue addressed."
+    },
+
+    "Document": {
+      "type": "object",
+      "description": "A legal document uploaded for review.",
+      "required": ["document_id", "file_name", "document_type", "uploaded_at", "status"],
+      "properties": {
+        "document_id":    { "type": "string", "format": "uuid" },
+        "file_name":      { "type": "string", "example": "Purchase_and_Sale_Agreement_2004.pdf" },
+        "document_type":  { "type": "string", "example": "Purchase and Sale Agreement" },
+        "parties": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/Party" }
+        },
+        "execution_date": { "type": "string", "format": "date", "example": "2004-06-30" },
+        "uploaded_at":    { "type": "string", "format": "date-time" },
+        "uploaded_by":    { "type": "string" },
+        "page_count":     { "type": "integer" },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "processing", "extracted", "under_review", "approved", "rejected"]
+        },
+        "extractions": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/ClauseExtraction" }
+        }
+      }
+    },
+
+    "Party": {
+      "type": "object",
+      "description": "A named party in the contract.",
+      "required": ["name", "role"],
+      "properties": {
+        "name":           { "type": "string", "example": "Federated Services Company" },
+        "role":           { "type": "string", "enum": ["buyer", "seller", "licensor", "licensee", "party_a", "party_b"] },
+        "entity_type":    { "type": "string", "example": "Pennsylvania corporation" },
+        "short_name":     { "type": "string", "example": "Seller" },
+        "address":        { "type": "string" }
+      }
+    },
+
+    "ClauseExtraction": {
+      "type": "object",
+      "description": "A single clause extracted from a document. Maps to a specific section and page. Source of truth for citation in the document viewer.",
+      "required": ["clause_id", "document_id", "clause_type", "raw_text", "section_ref", "page_number", "confidence", "extracted_at"],
+      "properties": {
+        "clause_id":       { "type": "string", "format": "uuid" },
+        "document_id":     { "type": "string", "format": "uuid" },
+        "clause_type":     { "$ref": "#/definitions/ClauseType" },
+        "raw_text":        { "type": "string", "description": "Verbatim text of the extracted clause." },
+        "section_ref":     { "type": "string", "example": "§6.2(a)", "description": "Section identifier as it appears in the document." },
+        "page_number":     { "type": "integer", "description": "Page number for document viewer citation highlight." },
+        "highlight_range": {
+          "type": "object",
+          "description": "Character offsets for highlight rendering in the document viewer.",
+          "properties": {
+            "start": { "type": "integer" },
+            "end":   { "type": "integer" }
+          }
+        },
+        "confidence":      { "type": "number", "minimum": 0, "maximum": 1, "description": "AI extraction confidence score." },
+        "extracted_at":    { "type": "string", "format": "date-time" },
+        "structured_values": {
+          "description": "Typed fields parsed from the clause text. Schema varies by clause_type.",
+          "oneOf": [
+            { "$ref": "#/definitions/IndemnificationValues" },
+            { "$ref": "#/definitions/FinancialTermsValues" },
+            { "$ref": "#/definitions/LiabilityLimitValues" },
+            { "$ref": "#/definitions/TerminationValues" },
+            { "$ref": "#/definitions/NonCompeteValues" },
+            { "$ref": "#/definitions/GoverningLawValues" }
+          ]
+        },
+        "flags": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/ValidationFlag" }
+        }
+      }
+    },
+
+    "IndemnificationValues": {
+      "type": "object",
+      "description": "Structured values extracted from an indemnification clause. Reference: §6.2(a) of the sample document.",
+      "properties": {
+        "deductible_floor":         { "type": "number", "description": "Minimum threshold per individual claim.", "example": 5000 },
+        "aggregate_threshold":      { "type": "number", "description": "Aggregate floor before indemnification kicks in.", "example": 50000 },
+        "liability_cap":            { "type": "string", "description": "Maximum total indemnification exposure.", "example": "Purchase Price ($2,050,000)" },
+        "liability_cap_amount":     { "type": "number", "example": 2050000 },
+        "survival_period_months":   { "type": "integer", "description": "Months post-closing the reps & warranties survive.", "example": 18 },
+        "claim_notice_window_days": { "type": "integer", "description": "Days after survival expiry to submit a written claim.", "example": 30 },
+        "mutual":                   { "type": "boolean", "description": "Whether indemnification obligations run both directions." },
+        "carve_outs":               { "type": "array", "items": { "type": "string" }, "description": "Specific items excluded from indemnification caps." }
+      }
+    },
+
+    "FinancialTermsValues": {
+      "type": "object",
+      "description": "Structured values for purchase price, fees, and proration terms.",
+      "properties": {
+        "purchase_price":           { "type": "number", "example": 2050000 },
+        "currency":                 { "type": "string", "example": "USD" },
+        "payment_method":           { "type": "string", "example": "immediately available funds" },
+        "proration_basis_days":     { "type": "integer", "example": 365 },
+        "ira_fee_apportionment":    { "type": "boolean" },
+        "fee_items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name":        { "type": "string" },
+              "responsible_party": { "type": "string" },
+              "timing":      { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+
+    "LiabilityLimitValues": {
+      "type": "object",
+      "description": "Structured values for liability exclusions and waivers. Reference: §6.5, §7.16.",
+      "properties": {
+        "consequential_damages_waived": { "type": "boolean", "description": "Whether consequential/punitive/lost profits damages are excluded. §6.5." },
+        "jury_trial_waived":            { "type": "boolean", "description": "Whether jury trial rights are waived. §7.16." },
+        "exclusive_remedy":             { "type": "boolean", "description": "Whether Article VI is the sole remedy. §6.6." },
+        "waiver_scope":                 { "type": "string", "example": "Both parties and all affiliates" },
+        "exceptions":                   { "type": "array", "items": { "type": "string" }, "description": "Carve-outs from the exclusive remedy (e.g. injunctive relief)." }
+      }
+    },
+
+    "TerminationValues": {
+      "type": "object",
+      "description": "Structured values for term, closing, and termination conditions. Reference: §2.1(a), §7.2.",
+      "properties": {
+        "closing_date":                 { "type": "string", "format": "date", "example": "2004-06-30" },
+        "termination_deadline":         { "type": "string", "format": "date", "example": "2004-07-31" },
+        "breach_cure_period_days":      { "type": "integer", "example": 30 },
+        "mutual_termination_allowed":   { "type": "boolean" },
+        "unilateral_termination_triggers": {
+          "type": "array",
+          "items": { "type": "string" },
+          "example": ["material breach uncured after 30 days", "closing conditions not met by July 31 2004"]
+        },
+        "confidentiality_survives":     { "type": "boolean", "example": true }
+      }
+    },
+
+    "NonCompeteValues": {
+      "type": "object",
+      "description": "Structured values for non-compete and non-solicitation clauses. Reference: §4.2(e).",
+      "properties": {
+        "restriction_period_months":    { "type": "integer", "example": 18 },
+        "restriction_start":            { "type": "string", "example": "Closing Date" },
+        "scope":                        { "type": "string", "example": "Transfer agency services business" },
+        "geographic_limit":             { "type": "string", "example": "None specified" },
+        "non_solicitation_included":    { "type": "boolean", "example": true },
+        "carve_outs": {
+          "type": "array",
+          "items": { "type": "string" },
+          "example": [
+            "Owning < 5% of publicly traded competitor",
+            "Acquisition-driven competitive involvement",
+            "Proprietary funds with prior termination notice"
+          ]
+        },
+        "tied_to_agreement":            { "type": "string", "description": "Name of the agreement the non-compete is contingent on.", "example": "New TA Agreement" },
+        "remedy":                       { "type": "string", "example": "Injunctive relief + period extension equal to violation duration" }
+      }
+    },
+
+    "GoverningLawValues": {
+      "type": "object",
+      "description": "Structured values for governing law, jurisdiction, and venue. Reference: §7.9, §7.15.",
+      "properties": {
+        "governing_law_state":          { "type": "string", "example": "New York" },
+        "buyer_venue":                  { "type": "string", "example": "Pittsburgh, Pennsylvania" },
+        "seller_venue":                 { "type": "string", "example": "Boston, Massachusetts" },
+        "venue_conflict":               { "type": "boolean", "description": "True when buyer and seller must litigate in different jurisdictions.", "example": true },
+        "jury_trial_waived":            { "type": "boolean", "example": true },
+        "forum_non_conveniens_waived":  { "type": "boolean", "example": true }
+      }
+    },
+
+    "ValidationRule": {
+      "type": "object",
+      "description": "A named business rule that is evaluated against an extracted clause's structured values.",
+      "required": ["rule_id", "rule_name", "clause_type", "severity", "message"],
+      "properties": {
+        "rule_id":      { "type": "string", "format": "uuid" },
+        "rule_name":    { "type": "string", "example": "consequential_damages_waived" },
+        "clause_type":  { "$ref": "#/definitions/ClauseType" },
+        "condition":    { "type": "string", "description": "Human-readable logic expression evaluated against structured_values.", "example": "liability_limits.consequential_damages_waived === true" },
+        "severity":     { "$ref": "#/definitions/Severity" },
+        "message":      { "type": "string", "description": "Reviewer-facing explanation of the flag.", "example": "Consequential damages are fully waived (§6.5). Lost profits claims are not recoverable under any breach scenario." },
+        "section_ref":  { "type": "string", "example": "§6.5" },
+        "is_active":    { "type": "boolean", "default": true }
+      }
+    },
+
+    "ValidationFlag": {
+      "type": "object",
+      "description": "A rule violation instance attached to a specific extracted clause.",
+      "required": ["flag_id", "clause_id", "rule_id", "severity", "status"],
+      "properties": {
+        "flag_id":       { "type": "string", "format": "uuid" },
+        "clause_id":     { "type": "string", "format": "uuid", "description": "FK → ClauseExtraction" },
+        "rule_id":       { "type": "string", "format": "uuid", "description": "FK → ValidationRule" },
+        "severity":      { "$ref": "#/definitions/Severity" },
+        "status":        { "$ref": "#/definitions/FlagStatus" },
+        "message":       { "type": "string", "description": "Copied from ValidationRule at time of evaluation." },
+        "reviewer_note": { "type": "string", "description": "Optional note added by the reviewer." },
+        "reviewed_by":   { "type": "string" },
+        "reviewed_at":   { "type": "string", "format": "date-time" }
+      }
+    }
+  },
+
+  "seededValidationRules": {
+    "description": "Starter rule library derived from the sample Purchase & Sale Agreement. Feed directly into the app's rule engine.",
+    "rules": [
+      {
+        "rule_id": "rule-001",
+        "rule_name": "consequential_damages_waived",
+        "clause_type": "liability_limits",
+        "condition": "liability_limits.consequential_damages_waived === true",
+        "severity": "critical",
+        "section_ref": "§6.5",
+        "message": "Consequential, punitive, and lost-profits damages are fully waived. Neither party can recover these under any breach scenario — review whether this is acceptable given deal size.",
+        "is_active": true
+      },
+      {
+        "rule_id": "rule-002",
+        "rule_name": "jury_trial_waived",
+        "clause_type": "liability_limits",
+        "condition": "liability_limits.jury_trial_waived === true",
+        "severity": "critical",
+        "section_ref": "§7.16",
+        "message": "Jury trial rights are waived for both parties and all affiliates. This clause is written in all-caps and is expressly stated to have no exceptions.",
+        "is_active": true
+      },
+      {
+        "rule_id": "rule-003",
+        "rule_name": "indemnity_cap_equals_purchase_price_only",
+        "clause_type": "indemnification",
+        "condition": "indemnification.liability_cap_amount <= indemnification.purchase_price",
+        "severity": "warning",
+        "section_ref": "§6.2(a)",
+        "message": "Indemnification is capped at the Purchase Price ($2.05M). For deals with ongoing operational exposure post-closing, this may be insufficient.",
+        "is_active": true
+      },
+      {
+        "rule_id": "rule-004",
+        "rule_name": "indemnity_aggregate_threshold_present",
+        "clause_type": "indemnification",
+        "condition": "indemnification.aggregate_threshold > 0",
+        "severity": "warning",
+        "section_ref": "§6.2(a)",
+        "message": "Claims below $5,000 individually and below $50,000 in aggregate are not indemnifiable. Small cumulative losses may go unrecovered.",
+        "is_active": true
+      },
+      {
+        "rule_id": "rule-005",
+        "rule_name": "conflicting_litigation_venues",
+        "clause_type": "governing_law",
+        "condition": "governing_law.venue_conflict === true",
+        "severity": "warning",
+        "section_ref": "§7.15",
+        "message": "Buyer must litigate in Pittsburgh; Seller must litigate in Boston. Parties cannot bring claims in the same court — this may complicate joint disputes.",
+        "is_active": true
+      },
+      {
+        "rule_id": "rule-006",
+        "rule_name": "non_compete_tied_to_external_agreement",
+        "clause_type": "non_compete",
+        "condition": "non_compete.tied_to_agreement !== null",
+        "severity": "info",
+        "section_ref": "§4.2(e)(iii)",
+        "message": "The non-compete obligation is conditional on the New TA Agreement remaining in force. If that agreement terminates, the non-compete may fall away.",
+        "is_active": true
+      },
+      {
+        "rule_id": "rule-007",
+        "rule_name": "short_breach_cure_window",
+        "clause_type": "term_and_termination",
+        "condition": "termination.breach_cure_period_days <= 30",
+        "severity": "warning",
+        "section_ref": "§7.2(a)",
+        "message": "Material breaches must be cured within 30 days of notice or the counterparty may terminate. Operational teams should be aware of this tight window.",
+        "is_active": true
+      },
+      {
+        "rule_id": "rule-008",
+        "rule_name": "exclusive_remedy_limits_recourse",
+        "clause_type": "liability_limits",
+        "condition": "liability_limits.exclusive_remedy === true",
+        "severity": "info",
+        "section_ref": "§6.6",
+        "message": "Article VI is the exclusive remedy for breaches. Except for injunctive relief, no other legal recourse is available outside the indemnification framework.",
+        "is_active": true
+      }
+    ]
+  }
+}
