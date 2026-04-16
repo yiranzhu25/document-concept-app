@@ -7,7 +7,6 @@ import {
   Sparkles, CheckCircle, XCircle, Circle,
 } from 'lucide-react'
 import { useData } from '../contexts/DataContext'
-import { useToast } from '../contexts/ToastContext'
 import { Button } from '../components/Button'
 import { Select } from '../components/Select'
 import { FileUploadZone } from '../components/FileUploadZone'
@@ -68,7 +67,6 @@ export function NewTaskPage() {
   const [searchParams] = useSearchParams()
   const qsProjectId = searchParams.get('projectId')
   const navigate = useNavigate()
-  const { toast } = useToast()
   const { projects, addTask } = useData()
 
   // Determine project

@@ -1,6 +1,6 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, Search, ChevronDown, ChevronUp, ChevronsUpDown } from 'lucide-react'
+import { Plus, Search, CheckSquare, ChevronDown, ChevronUp, ChevronsUpDown } from 'lucide-react'
 import { PageHeader } from '../components/PageHeader'
 import { Button } from '../components/Button'
 import { SegmentedToggle } from '../components/SegmentedToggle'
@@ -10,6 +10,7 @@ import { Avatar } from '../components/Avatar'
 import { EmptyState } from '../components/EmptyState'
 import { useToast } from '../contexts/ToastContext'
 import { useData } from '../contexts/DataContext'
+import { useDebounce } from '../hooks/useDebounce'
 import { CURRENT_USER, USERS } from '../data/mockData'
 import type { User } from '../data/mockData'
 
@@ -18,9 +19,7 @@ type SortKey = 'priority' | 'dueDate'
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
+    month: 'short', day: 'numeric', year: 'numeric',
   })
 }
 
@@ -35,6 +34,7 @@ export function TasksPage() {
   const [filterMode, setFilterMode] = useState<FilterMode>('mine')
   const [search, setSearch] = useState('')
   const [sortKey, setSortKey] = useState<SortKey>('priority')
+  const debouncedSearch = useDebounce(search, 300)
 
   // Reassign dropdown state
   const [openReassignId, setOpenReassignId] = useState<string | null>(null)
@@ -54,41 +54,61 @@ export function TasksPage() {
   const handleReassign = (taskId: string, user: User) => {
     updateTask(taskId, { assignee: user })
     setOpenReassignId(null)
-    toast({
-      variant: 'success',
-      title: 'Task reassigned',
-      message: `Now assigned to ${user.name}`,
-    })
+    toast({ variant: 'success', title: 'Task reassigned', message: `Now assigned to ${user.name}` })
   }
 
-  // Filter
-  let filtered = tasks.filter((t) => {
-    if (filterMode === 'mine') {
-      if (t.assignee.id !== CURRENT_USER.id) return false
-      if (t.status === 'Complete') return false
-    }
-    const q = search.toLowerCase()
-    if (
-      q &&
-      !t.name.toLowerCase().includes(q) &&
-      !t.project.toLowerCase().includes(q) &&
-      !t.client.toLowerCase().includes(q)
-    )
-      return false
-    return true
-  })
+  const filtered = useMemo(() => {
+    const q = debouncedSearch.toLowerCase()
+    const result = tasks.filter((t) => {
+      if (filterMode === 'mine') {
+        if (t.assignee.id !== CURRENT_USER.id) return false
+        if (t.status === 'Complete') return false
+      }
+      if (q && !t.name.toLowerCase().includes(q) && !t.project.toLowerCase().includes(q) && !t.client.toLowerCase().includes(q))
+        return false
+      return true
+    })
+    return [...result].sort((a, b) => {
+      if (sortKey === 'priority') return b.priority - a.priority
+      return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
+    })
+  }, [tasks, filterMode, debouncedSearch, sortKey])
 
-  // Sort
-  filtered = [...filtered].sort((a, b) => {
-    if (sortKey === 'priority') return b.priority - a.priority
-    return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
-  })
-
-  // Get assignees for a task's project (for reassign dropdown)
   const getProjectAssignees = (projectId: string) => {
     const project = projects.find((p) => p.id === projectId)
     return project?.assignees ?? USERS
   }
+
+  const emptyState = useMemo(() => {
+    if (debouncedSearch) {
+      return (
+        <EmptyState
+          icon={Search}
+          title="No Results Found"
+          description="No tasks match your search. Try a different term."
+          minHeight={240}
+        />
+      )
+    }
+    if (filterMode === 'mine') {
+      return (
+        <EmptyState
+          icon={CheckSquare}
+          title="You're All Caught Up!"
+          description="No pending tasks assigned to you. Enjoy the clear queue."
+          minHeight={240}
+        />
+      )
+    }
+    return (
+      <EmptyState
+        icon={CheckSquare}
+        title="No Tasks"
+        description="Tasks will appear here once created."
+        minHeight={240}
+      />
+    )
+  }, [debouncedSearch, filterMode])
 
   return (
     <div>
@@ -136,12 +156,7 @@ export function TasksPage() {
       {/* Table */}
       <div style={{ overflowX: 'auto' }}>
         {filtered.length === 0 ? (
-          <EmptyState
-            icon={Search}
-            title="No Results Found"
-            description="Try a different search term or filter."
-            minHeight={240}
-          />
+          emptyState
         ) : (
           <table
             style={{
@@ -178,14 +193,7 @@ export function TasksPage() {
                       borderBottom: '1px solid var(--color-border-strong)',
                       whiteSpace: 'nowrap',
                       width: col.width,
-                      ...(col.sticky
-                        ? {
-                            position: 'sticky',
-                            left: 0,
-                            zIndex: 2,
-                            boxShadow: '2px 0 4px -2px rgba(0,0,0,0.06)',
-                          }
-                        : {}),
+                      ...(col.sticky ? { position: 'sticky', left: 0, zIndex: 2, boxShadow: '2px 0 4px -2px rgba(0,0,0,0.06)' } : {}),
                     }}
                   >
                     {col.label}
@@ -204,21 +212,15 @@ export function TasksPage() {
                   <tr
                     key={task.id}
                     style={{
-                      backgroundColor: isFailed
-                        ? 'rgba(255,77,77,0.03)'
-                        : 'transparent',
+                      backgroundColor: isFailed ? 'rgba(255,77,77,0.03)' : 'transparent',
                       cursor: 'default',
                       transition: 'background-color 80ms',
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = isFailed
-                        ? 'rgba(255,77,77,0.05)'
-                        : 'var(--color-bg-subtle)'
+                      e.currentTarget.style.backgroundColor = isFailed ? 'rgba(255,77,77,0.05)' : 'var(--color-bg-subtle)'
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = isFailed
-                        ? 'rgba(255,77,77,0.03)'
-                        : 'transparent'
+                      e.currentTarget.style.backgroundColor = isFailed ? 'rgba(255,77,77,0.03)' : 'transparent'
                     }}
                   >
                     {/* Task Name */}
@@ -237,6 +239,7 @@ export function TasksPage() {
                       <span
                         role="button"
                         tabIndex={0}
+                        title={task.name}
                         onClick={() => navigate(`/tasks/${task.id}`)}
                         onKeyDown={(e) => e.key === 'Enter' && navigate(`/tasks/${task.id}`)}
                         style={{
@@ -258,17 +261,51 @@ export function TasksPage() {
                     </td>
 
                     {/* Project */}
-                    <td style={{ height: '52px', padding: '0 16px', borderBottom: '1px solid var(--color-border-default)', fontSize: '13px', color: 'var(--color-text-secondary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '160px' }}>
+                    <td
+                      title={task.project}
+                      style={{
+                        height: '52px',
+                        padding: '0 16px',
+                        borderBottom: '1px solid var(--color-border-default)',
+                        fontSize: '13px',
+                        color: 'var(--color-text-secondary)',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        maxWidth: '160px',
+                      }}
+                    >
                       {task.project}
                     </td>
 
                     {/* Client */}
-                    <td style={{ height: '52px', padding: '0 16px', borderBottom: '1px solid var(--color-border-default)', fontSize: '13px', color: 'var(--color-text-secondary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '160px' }}>
+                    <td
+                      title={task.client}
+                      style={{
+                        height: '52px',
+                        padding: '0 16px',
+                        borderBottom: '1px solid var(--color-border-default)',
+                        fontSize: '13px',
+                        color: 'var(--color-text-secondary)',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        maxWidth: '160px',
+                      }}
+                    >
                       {task.client}
                     </td>
 
                     {/* Due Date */}
-                    <td style={{ height: '52px', padding: '0 16px', borderBottom: '1px solid var(--color-border-default)', fontSize: '13px', color: overdue ? 'var(--color-negative)' : 'var(--color-text-secondary)', whiteSpace: 'nowrap', fontWeight: overdue ? 500 : 400 }}>
+                    <td style={{
+                      height: '52px',
+                      padding: '0 16px',
+                      borderBottom: '1px solid var(--color-border-default)',
+                      fontSize: '13px',
+                      color: overdue ? 'var(--color-negative)' : 'var(--color-text-secondary)',
+                      whiteSpace: 'nowrap',
+                      fontWeight: overdue ? 500 : 400,
+                    }}>
                       {formatDate(task.dueDate)}
                     </td>
 
@@ -279,19 +316,13 @@ export function TasksPage() {
                           <span style={{ color: 'var(--color-text-secondary)' }}>
                             {task.automationResult.clausesExtracted} clauses
                           </span>
-                          {task.automationResult.issuesFound > 0 && (
-                            <>
-                              <span style={{ color: 'var(--color-text-secondary)' }}> · </span>
-                              <span style={{ color: 'var(--color-warning)', fontWeight: 500 }}>
-                                {task.automationResult.issuesFound} issues
-                              </span>
-                            </>
-                          )}
-                          {task.automationResult.issuesFound === 0 && (
-                            <>
-                              <span style={{ color: 'var(--color-text-secondary)' }}> · </span>
-                              <span style={{ color: 'var(--color-text-secondary)' }}>0 issues</span>
-                            </>
+                          <span style={{ color: 'var(--color-text-secondary)' }}> · </span>
+                          {task.automationResult.issuesFound > 0 ? (
+                            <span style={{ color: 'var(--color-warning)', fontWeight: 500 }}>
+                              {task.automationResult.issuesFound} issues
+                            </span>
+                          ) : (
+                            <span style={{ color: 'var(--color-text-secondary)' }}>0 issues</span>
                           )}
                         </>
                       ) : (
@@ -306,10 +337,7 @@ export function TasksPage() {
 
                     {/* Assignee */}
                     <td style={{ height: '52px', padding: '0 16px', borderBottom: '1px solid var(--color-border-default)', position: 'relative' }}>
-                      <div
-                        ref={isReassignOpen ? reassignRef : null}
-                        style={{ position: 'relative', display: 'inline-block' }}
-                      >
+                      <div ref={isReassignOpen ? reassignRef : null} style={{ position: 'relative', display: 'inline-block' }}>
                         <button
                           onClick={() => setOpenReassignId(isReassignOpen ? null : task.id)}
                           style={{

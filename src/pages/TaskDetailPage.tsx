@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useMemo, useCallback } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import {
   ArrowLeft, BookOpen, CheckCircle, ChevronLeft, ChevronRight,
-  FileText, Shield, ZoomIn, ZoomOut, Search, X, Check,
+  FileText, ZoomIn, ZoomOut, Search, X, Check,
   AlertTriangle, Info, Eye,
 } from 'lucide-react'
 import { TASKS, CURRENT_USER } from '../data/mockData'
@@ -13,7 +13,6 @@ import { Accordion } from '../components/Accordion'
 import { ProgressBar } from '../components/ProgressBar'
 import { Badge, statusToBadgeVariant } from '../components/Badge'
 import { Button } from '../components/Button'
-import { Avatar } from '../components/Avatar'
 import { ActivityLog } from '../components/ActivityLog'
 import { CommentThread, type Comment } from '../components/CommentThread'
 import { ConfirmModal } from '../components/Modal'
@@ -81,6 +80,15 @@ function ClauseCard({
   const [editValue, setEditValue] = useState(currentValue)
   const [editNote, setEditNote] = useState('')
   const [showResolvedDetail, setShowResolvedDetail] = useState(false)
+  const [showCancelEditConfirm, setShowCancelEditConfirm] = useState(false)
+
+  const handleCancelEditClick = () => {
+    if (editValue !== currentValue) {
+      setShowCancelEditConfirm(true)
+    } else {
+      onCancelEdit()
+    }
+  }
 
   // Reset edit value when editing starts
   useEffect(() => {
@@ -196,7 +204,7 @@ function ClauseCard({
               Save
             </Button>
             <button
-              onClick={onCancelEdit}
+              onClick={handleCancelEditClick}
               style={{ fontSize: '12px', color: 'var(--color-text-secondary)', background: 'none', border: 'none', cursor: 'pointer', padding: '0' }}
               onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--color-text-primary)' }}
               onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--color-text-secondary)' }}
@@ -322,6 +330,16 @@ function ClauseCard({
           )}
         </div>
       )}
+
+      <ConfirmModal
+        open={showCancelEditConfirm}
+        onClose={() => setShowCancelEditConfirm(false)}
+        onConfirm={() => { setShowCancelEditConfirm(false); onCancelEdit() }}
+        title="Discard changes?"
+        description="You have unsaved edits. Discard them and cancel?"
+        confirmLabel="Discard"
+        variant="destructive"
+      />
     </div>
   )
 }
@@ -423,6 +441,18 @@ export function TaskDetailPage() {
     issueFields.length > 0 ? (resolvedIssueCount / issueFields.length) * 100 : 100
 
   const canApprove = unresolvedIssueFields.length === 0 && !taskApproved
+  const allIssuesResolved = unresolvedIssueFields.length === 0 && issueFields.length > 0
+
+  // Pulse the Approve button once when all issues first become resolved
+  const [approvePulse, setApprovePulse] = useState(false)
+  const prevCanApprove = useRef(false)
+  useEffect(() => {
+    if (canApprove && !prevCanApprove.current) {
+      setApprovePulse(true)
+      setTimeout(() => setApprovePulse(false), 700)
+    }
+    prevCanApprove.current = canApprove
+  }, [canApprove])
 
   // Active citations for right panel
   const activeCitations = useMemo(() => {
@@ -587,6 +617,25 @@ export function TaskDetailPage() {
     }
   }, [docViewMode, scrollToExcerpt])
 
+  // j/k / ↓/↑ keyboard navigation between fields on the review tab
+  useEffect(() => {
+    if (activeTab !== 'review') return
+    const onKeyDown = (e: KeyboardEvent) => {
+      // Don't fire when focus is inside an input/textarea
+      const tag = (e.target as HTMLElement).tagName
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return
+      if (e.key === 'j' || e.key === 'ArrowDown') {
+        e.preventDefault()
+        navigateToField(Math.min(filteredFields.length - 1, currentFieldIdx + 1))
+      } else if (e.key === 'k' || e.key === 'ArrowUp') {
+        e.preventDefault()
+        navigateToField(Math.max(0, currentFieldIdx - 1))
+      }
+    }
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [activeTab, currentFieldIdx, filteredFields.length, navigateToField])
+
   // Split panel drag
   const handleSplitMouseDown = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -700,6 +749,7 @@ export function TaskDetailPage() {
               variant="primary"
               disabled={!canApprove}
               onClick={() => setShowApproveModal(true)}
+              style={approvePulse ? { animation: 'approvePulse 0.7s var(--easing-standard) both' } : undefined}
             >
               {taskApproved ? '✓ Approved' : 'Approve'}
             </Button>
@@ -741,8 +791,10 @@ export function TaskDetailPage() {
             <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--color-border-default)', flexShrink: 0 }}>
               {/* Progress */}
               <div style={{ marginBottom: '10px' }}>
-                <p style={{ margin: '0 0 6px', fontSize: '12px', color: 'var(--color-text-secondary)' }}>
-                  {unresolvedIssueFields.length} of {issueFields.length} issues remaining
+                <p style={{ margin: '0 0 6px', fontSize: '12px', color: allIssuesResolved ? 'var(--color-positive)' : 'var(--color-text-secondary)', fontWeight: allIssuesResolved ? 600 : 400 }}>
+                  {allIssuesResolved
+                    ? 'All issues resolved. Ready to approve.'
+                    : `${unresolvedIssueFields.length} of ${issueFields.length} issues remaining`}
                 </p>
                 <ProgressBar value={issueProgressPct} />
               </div>

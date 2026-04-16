@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { Outlet } from 'react-router-dom'
+import { Outlet, useLocation } from 'react-router-dom'
 import { Sidebar } from './Sidebar'
 
 export function AppShell() {
   const [collapsed, setCollapsed] = useState(false)
+  const location = useLocation()
   const sidebarWidth = collapsed ? 64 : 240
 
   return (
@@ -34,7 +35,19 @@ export function AppShell() {
             minHeight: '100%',
           }}
         >
-          <Outlet />
+          {/*
+            key={location.key} triggers a fresh mount + CSS animation on every
+            navigation, giving a smooth fade-in + slide-up page transition.
+          */}
+          <div
+            key={location.key}
+            style={{
+              animation: `pageIn var(--duration-deliberate) var(--easing-decelerate) both`,
+              willChange: 'opacity, transform',
+            }}
+          >
+            <Outlet />
+          </div>
         </div>
       </main>
     </div>

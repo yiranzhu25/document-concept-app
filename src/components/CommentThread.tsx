@@ -1,9 +1,8 @@
 // Comment thread — Addendum A11
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef } from 'react'
 import { MessageSquare } from 'lucide-react'
 import { Avatar } from './Avatar'
 import { Button } from './Button'
-import { CURRENT_USER } from '../data/mockData'
 
 export interface Comment {
   id: string

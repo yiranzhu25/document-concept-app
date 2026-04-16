@@ -1,5 +1,4 @@
 // Horizontal tab bar — Addendum A6
-import type { ReactNode } from 'react'
 
 export interface Tab<T extends string> {
   id: T

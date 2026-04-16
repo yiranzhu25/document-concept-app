@@ -1,14 +1,16 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react'
+import { type ButtonHTMLAttributes, type ReactNode } from 'react'
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary'
   size?: 'sm' | 'md'
+  loading?: boolean
   children: ReactNode
 }
 
 export function Button({
   variant = 'primary',
   size = 'md',
+  loading = false,
   children,
   style,
   onMouseEnter,
@@ -18,6 +20,7 @@ export function Button({
 }: ButtonProps) {
   const isPrimary = variant === 'primary'
   const isSmall = size === 'sm'
+  const isDisabled = disabled || loading
 
   const baseStyle: React.CSSProperties = {
     display: 'inline-flex',
@@ -26,15 +29,15 @@ export function Button({
     gap: '6px',
     fontFamily: 'var(--font-body)',
     fontWeight: 600,
-    cursor: disabled ? 'not-allowed' : 'pointer',
+    cursor: isDisabled ? (loading ? 'wait' : 'not-allowed') : 'pointer',
     border: 'none',
-    outline: 'none',
     transition: `background-color var(--duration-fast) var(--easing-standard),
                  color var(--duration-fast) var(--easing-standard),
                  box-shadow var(--duration-fast) var(--easing-standard),
-                 opacity var(--duration-fast) var(--easing-standard)`,
+                 opacity var(--duration-fast) var(--easing-standard),
+                 transform 80ms ease`,
     whiteSpace: 'nowrap',
-    opacity: disabled ? 0.45 : 1,
+    opacity: isDisabled && !loading ? 0.4 : 1,
     // Size
     fontSize: isSmall ? '12px' : '14px',
     lineHeight: isSmall ? '18px' : '22px',
@@ -55,9 +58,9 @@ export function Button({
   return (
     <button
       style={baseStyle}
-      disabled={disabled}
+      disabled={isDisabled}
       onMouseEnter={(e) => {
-        if (!disabled) {
+        if (!isDisabled) {
           e.currentTarget.style.backgroundColor = isPrimary
             ? 'var(--color-action-primary-hover)'
             : 'var(--color-action-secondary-hover)'
@@ -65,7 +68,7 @@ export function Button({
         onMouseEnter?.(e)
       }}
       onMouseLeave={(e) => {
-        if (!disabled) {
+        if (!isDisabled) {
           e.currentTarget.style.backgroundColor = isPrimary
             ? 'var(--color-action-primary)'
             : 'var(--color-action-secondary)'
@@ -74,7 +77,24 @@ export function Button({
       }}
       {...rest}
     >
-      {children}
+      {loading ? (
+        <>
+          <span
+            style={{
+              width: isSmall ? '12px' : '14px',
+              height: isSmall ? '12px' : '14px',
+              border: `2px solid currentColor`,
+              borderTopColor: 'transparent',
+              borderRadius: '50%',
+              animation: 'spin 0.7s linear infinite',
+              flexShrink: 0,
+            }}
+          />
+          <span>Loading…</span>
+        </>
+      ) : (
+        children
+      )}
     </button>
   )
 }
