@@ -9,8 +9,9 @@ import { Badge, statusToBadgeVariant } from '../components/Badge'
 import { Avatar } from '../components/Avatar'
 import { EmptyState } from '../components/EmptyState'
 import { useToast } from '../contexts/ToastContext'
-import { TASKS, PROJECTS, CURRENT_USER, USERS } from '../data/mockData'
-import type { Task, User } from '../data/mockData'
+import { useData } from '../contexts/DataContext'
+import { CURRENT_USER, USERS } from '../data/mockData'
+import type { User } from '../data/mockData'
 
 type FilterMode = 'all' | 'mine'
 type SortKey = 'priority' | 'dueDate'
@@ -30,10 +31,10 @@ function isOverdue(iso: string) {
 export function TasksPage() {
   const { toast } = useToast()
   const navigate = useNavigate()
+  const { projects, tasks, updateTask } = useData()
   const [filterMode, setFilterMode] = useState<FilterMode>('mine')
   const [search, setSearch] = useState('')
   const [sortKey, setSortKey] = useState<SortKey>('priority')
-  const [tasks, setTasks] = useState<Task[]>(TASKS)
 
   // Reassign dropdown state
   const [openReassignId, setOpenReassignId] = useState<string | null>(null)
@@ -51,9 +52,7 @@ export function TasksPage() {
   }, [openReassignId])
 
   const handleReassign = (taskId: string, user: User) => {
-    setTasks((prev) =>
-      prev.map((t) => (t.id === taskId ? { ...t, assignee: user } : t)),
-    )
+    updateTask(taskId, { assignee: user })
     setOpenReassignId(null)
     toast({
       variant: 'success',
@@ -87,7 +86,7 @@ export function TasksPage() {
 
   // Get assignees for a task's project (for reassign dropdown)
   const getProjectAssignees = (projectId: string) => {
-    const project = PROJECTS.find((p) => p.id === projectId)
+    const project = projects.find((p) => p.id === projectId)
     return project?.assignees ?? USERS
   }
 
@@ -97,7 +96,7 @@ export function TasksPage() {
         title="Tasks"
         description="Review and action your assigned extraction tasks."
         action={
-          <Button variant="primary">
+          <Button variant="primary" onClick={() => navigate('/tasks/new')}>
             <Plus size={16} strokeWidth={2.5} />
             New Task
           </Button>
@@ -179,7 +178,6 @@ export function TasksPage() {
                       borderBottom: '1px solid var(--color-border-strong)',
                       whiteSpace: 'nowrap',
                       width: col.width,
-                      // Sticky first column on tablet
                       ...(col.sticky
                         ? {
                             position: 'sticky',
@@ -213,14 +211,12 @@ export function TasksPage() {
                       transition: 'background-color 80ms',
                     }}
                     onMouseEnter={(e) => {
-                      const tr = e.currentTarget
-                      tr.style.backgroundColor = isFailed
+                      e.currentTarget.style.backgroundColor = isFailed
                         ? 'rgba(255,77,77,0.05)'
                         : 'var(--color-bg-subtle)'
                     }}
                     onMouseLeave={(e) => {
-                      const tr = e.currentTarget
-                      tr.style.backgroundColor = isFailed
+                      e.currentTarget.style.backgroundColor = isFailed
                         ? 'rgba(255,77,77,0.03)'
                         : 'transparent'
                     }}
@@ -254,76 +250,30 @@ export function TasksPage() {
                           maxWidth: '240px',
                           display: 'block',
                         }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.textDecoration = 'underline'
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.textDecoration = 'none'
-                        }}
+                        onMouseEnter={(e) => { e.currentTarget.style.textDecoration = 'underline' }}
+                        onMouseLeave={(e) => { e.currentTarget.style.textDecoration = 'none' }}
                       >
                         {task.name}
                       </span>
                     </td>
 
                     {/* Project */}
-                    <td
-                      style={{
-                        height: '52px',
-                        padding: '0 16px',
-                        borderBottom: '1px solid var(--color-border-default)',
-                        fontSize: '13px',
-                        color: 'var(--color-text-secondary)',
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        maxWidth: '160px',
-                      }}
-                    >
+                    <td style={{ height: '52px', padding: '0 16px', borderBottom: '1px solid var(--color-border-default)', fontSize: '13px', color: 'var(--color-text-secondary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '160px' }}>
                       {task.project}
                     </td>
 
                     {/* Client */}
-                    <td
-                      style={{
-                        height: '52px',
-                        padding: '0 16px',
-                        borderBottom: '1px solid var(--color-border-default)',
-                        fontSize: '13px',
-                        color: 'var(--color-text-secondary)',
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        maxWidth: '160px',
-                      }}
-                    >
+                    <td style={{ height: '52px', padding: '0 16px', borderBottom: '1px solid var(--color-border-default)', fontSize: '13px', color: 'var(--color-text-secondary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '160px' }}>
                       {task.client}
                     </td>
 
                     {/* Due Date */}
-                    <td
-                      style={{
-                        height: '52px',
-                        padding: '0 16px',
-                        borderBottom: '1px solid var(--color-border-default)',
-                        fontSize: '13px',
-                        color: overdue ? 'var(--color-negative)' : 'var(--color-text-secondary)',
-                        whiteSpace: 'nowrap',
-                        fontWeight: overdue ? 500 : 400,
-                      }}
-                    >
+                    <td style={{ height: '52px', padding: '0 16px', borderBottom: '1px solid var(--color-border-default)', fontSize: '13px', color: overdue ? 'var(--color-negative)' : 'var(--color-text-secondary)', whiteSpace: 'nowrap', fontWeight: overdue ? 500 : 400 }}>
                       {formatDate(task.dueDate)}
                     </td>
 
                     {/* Automation Result */}
-                    <td
-                      style={{
-                        height: '52px',
-                        padding: '0 16px',
-                        borderBottom: '1px solid var(--color-border-default)',
-                        fontSize: '13px',
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
+                    <td style={{ height: '52px', padding: '0 16px', borderBottom: '1px solid var(--color-border-default)', fontSize: '13px', whiteSpace: 'nowrap' }}>
                       {task.automationResult.clausesExtracted > 0 ? (
                         <>
                           <span style={{ color: 'var(--color-text-secondary)' }}>
@@ -340,9 +290,7 @@ export function TasksPage() {
                           {task.automationResult.issuesFound === 0 && (
                             <>
                               <span style={{ color: 'var(--color-text-secondary)' }}> · </span>
-                              <span style={{ color: 'var(--color-text-secondary)' }}>
-                                0 issues
-                              </span>
+                              <span style={{ color: 'var(--color-text-secondary)' }}>0 issues</span>
                             </>
                           )}
                         </>
@@ -352,65 +300,29 @@ export function TasksPage() {
                     </td>
 
                     {/* Priority */}
-                    <td
-                      style={{
-                        height: '52px',
-                        padding: '0 16px',
-                        borderBottom: '1px solid var(--color-border-default)',
-                      }}
-                    >
+                    <td style={{ height: '52px', padding: '0 16px', borderBottom: '1px solid var(--color-border-default)' }}>
                       <Badge variant="priority" value={task.priority} />
                     </td>
 
-                    {/* Assignee — with reassign dropdown */}
-                    <td
-                      style={{
-                        height: '52px',
-                        padding: '0 16px',
-                        borderBottom: '1px solid var(--color-border-default)',
-                        position: 'relative',
-                      }}
-                    >
+                    {/* Assignee */}
+                    <td style={{ height: '52px', padding: '0 16px', borderBottom: '1px solid var(--color-border-default)', position: 'relative' }}>
                       <div
                         ref={isReassignOpen ? reassignRef : null}
                         style={{ position: 'relative', display: 'inline-block' }}
                       >
                         <button
-                          onClick={() =>
-                            setOpenReassignId(isReassignOpen ? null : task.id)
-                          }
+                          onClick={() => setOpenReassignId(isReassignOpen ? null : task.id)}
                           style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '6px',
-                            padding: '4px 6px',
-                            borderRadius: 'var(--radius-2)',
-                            border: 'none',
-                            backgroundColor: 'transparent',
-                            cursor: 'pointer',
+                            display: 'flex', alignItems: 'center', gap: '6px',
+                            padding: '4px 6px', borderRadius: 'var(--radius-2)',
+                            border: 'none', backgroundColor: 'transparent', cursor: 'pointer',
                             transition: `background-color var(--duration-fast) var(--easing-standard)`,
                           }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = 'var(--color-bg-subtle)'
-                          }}
-                          onMouseLeave={(e) => {
-                            if (!isReassignOpen) {
-                              e.currentTarget.style.backgroundColor = 'transparent'
-                            }
-                          }}
+                          onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-bg-subtle)' }}
+                          onMouseLeave={(e) => { if (!isReassignOpen) e.currentTarget.style.backgroundColor = 'transparent' }}
                         >
-                          <Avatar
-                            initials={task.assignee.initials}
-                            name={task.assignee.name}
-                            size={24}
-                          />
-                          <span
-                            style={{
-                              fontSize: '12px',
-                              color: 'var(--color-text-secondary)',
-                              whiteSpace: 'nowrap',
-                            }}
-                          >
+                          <Avatar initials={task.assignee.initials} name={task.assignee.name} size={24} />
+                          <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)', whiteSpace: 'nowrap' }}>
                             {task.assignee.name.split(' ')[0]}
                           </span>
                         </button>
@@ -418,29 +330,14 @@ export function TasksPage() {
                         {isReassignOpen && (
                           <div
                             style={{
-                              position: 'absolute',
-                              top: '100%',
-                              left: 0,
-                              marginTop: '4px',
+                              position: 'absolute', top: '100%', left: 0, marginTop: '4px',
                               backgroundColor: 'var(--color-bg-surface-raised)',
                               border: '1px solid var(--color-border-default)',
-                              borderRadius: 'var(--radius-3)',
-                              boxShadow: 'var(--shadow-3)',
-                              minWidth: '180px',
-                              zIndex: 20,
-                              overflow: 'hidden',
+                              borderRadius: 'var(--radius-3)', boxShadow: 'var(--shadow-3)',
+                              minWidth: '180px', zIndex: 20, overflow: 'hidden',
                             }}
                           >
-                            <div
-                              style={{
-                                padding: '6px 12px 4px',
-                                fontSize: '11px',
-                                color: 'var(--color-text-secondary)',
-                                fontWeight: 500,
-                                letterSpacing: '0.06em',
-                                textTransform: 'uppercase',
-                              }}
-                            >
+                            <div style={{ padding: '6px 12px 4px', fontSize: '11px', color: 'var(--color-text-secondary)', fontWeight: 500, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
                               Reassign to
                             </div>
                             {assignees.map((user) => (
@@ -448,38 +345,17 @@ export function TasksPage() {
                                 key={user.id}
                                 onClick={() => handleReassign(task.id, user)}
                                 style={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: '8px',
-                                  width: '100%',
-                                  padding: '8px 12px',
-                                  fontSize: '13px',
-                                  color:
-                                    user.id === task.assignee.id
-                                      ? 'var(--color-text-primary)'
-                                      : 'var(--color-text-secondary)',
-                                  fontWeight:
-                                    user.id === task.assignee.id ? 600 : 400,
-                                  backgroundColor: 'transparent',
-                                  border: 'none',
-                                  cursor: 'pointer',
-                                  textAlign: 'left',
+                                  display: 'flex', alignItems: 'center', gap: '8px',
+                                  width: '100%', padding: '8px 12px', fontSize: '13px',
+                                  color: user.id === task.assignee.id ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
+                                  fontWeight: user.id === task.assignee.id ? 600 : 400,
+                                  backgroundColor: 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left',
                                   transition: `background-color var(--duration-fast) var(--easing-standard)`,
                                 }}
-                                onMouseEnter={(e) => {
-                                  e.currentTarget.style.backgroundColor =
-                                    'var(--color-bg-subtle)'
-                                }}
-                                onMouseLeave={(e) => {
-                                  e.currentTarget.style.backgroundColor =
-                                    'transparent'
-                                }}
+                                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-bg-subtle)' }}
+                                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}
                               >
-                                <Avatar
-                                  initials={user.initials}
-                                  name={user.name}
-                                  size={22}
-                                />
+                                <Avatar initials={user.initials} name={user.name} size={22} />
                                 {user.name}
                               </button>
                             ))}
@@ -489,18 +365,8 @@ export function TasksPage() {
                     </td>
 
                     {/* Status */}
-                    <td
-                      style={{
-                        height: '52px',
-                        padding: '0 16px',
-                        borderBottom: '1px solid var(--color-border-default)',
-                      }}
-                    >
-                      <Badge
-                        variant={statusToBadgeVariant(task.status)}
-                        label={task.status}
-                        dot
-                      />
+                    <td style={{ height: '52px', padding: '0 16px', borderBottom: '1px solid var(--color-border-default)' }}>
+                      <Badge variant={statusToBadgeVariant(task.status)} label={task.status} dot />
                     </td>
                   </tr>
                 )
@@ -545,31 +411,18 @@ function SortDropdown({ value, onChange }: SortDropdownProps) {
       <button
         onClick={() => setOpen((o) => !o)}
         style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '6px',
-          height: '36px',
-          padding: '0 12px',
-          fontSize: '13px',
-          fontWeight: 500,
+          display: 'flex', alignItems: 'center', gap: '6px',
+          height: '36px', padding: '0 12px', fontSize: '13px', fontWeight: 500,
           color: 'var(--color-text-primary)',
           backgroundColor: 'var(--color-bg-surface)',
           border: '1px solid var(--color-border-default)',
-          borderRadius: 'var(--radius-2)',
-          cursor: 'pointer',
-          whiteSpace: 'nowrap',
+          borderRadius: 'var(--radius-2)', cursor: 'pointer', whiteSpace: 'nowrap',
           transition: `border-color var(--duration-fast) var(--easing-standard)`,
         }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.borderColor = 'var(--color-border-strong)'
-        }}
-        onMouseLeave={(e) => {
-          if (!open) e.currentTarget.style.borderColor = 'var(--color-border-default)'
-        }}
+        onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--color-border-strong)' }}
+        onMouseLeave={(e) => { if (!open) e.currentTarget.style.borderColor = 'var(--color-border-default)' }}
       >
-        <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)', fontWeight: 500 }}>
-          Sort:
-        </span>
+        <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)', fontWeight: 500 }}>Sort:</span>
         {current.label}
         <ChevronDown size={14} style={{ color: 'var(--color-text-secondary)' }} />
       </button>
@@ -577,49 +430,27 @@ function SortDropdown({ value, onChange }: SortDropdownProps) {
       {open && (
         <div
           style={{
-            position: 'absolute',
-            top: 'calc(100% + 4px)',
-            left: 0,
+            position: 'absolute', top: 'calc(100% + 4px)', left: 0,
             backgroundColor: 'var(--color-bg-surface-raised)',
             border: '1px solid var(--color-border-default)',
-            borderRadius: 'var(--radius-3)',
-            boxShadow: 'var(--shadow-3)',
-            minWidth: '150px',
-            zIndex: 20,
-            overflow: 'hidden',
+            borderRadius: 'var(--radius-3)', boxShadow: 'var(--shadow-3)',
+            minWidth: '150px', zIndex: 20, overflow: 'hidden',
           }}
         >
           {SORT_OPTIONS.map((opt) => (
             <button
               key={opt.value}
-              onClick={() => {
-                onChange(opt.value)
-                setOpen(false)
-              }}
+              onClick={() => { onChange(opt.value); setOpen(false) }}
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                width: '100%',
-                padding: '9px 12px',
-                fontSize: '13px',
+                display: 'flex', alignItems: 'center', gap: '8px',
+                width: '100%', padding: '9px 12px', fontSize: '13px',
                 fontWeight: opt.value === value ? 600 : 400,
-                color:
-                  opt.value === value
-                    ? 'var(--color-text-primary)'
-                    : 'var(--color-text-secondary)',
-                backgroundColor: 'transparent',
-                border: 'none',
-                cursor: 'pointer',
-                textAlign: 'left',
+                color: opt.value === value ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
+                backgroundColor: 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left',
                 transition: `background-color var(--duration-fast) var(--easing-standard)`,
               }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'var(--color-bg-subtle)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent'
-              }}
+              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-bg-subtle)' }}
+              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}
             >
               {opt.value === value ? (
                 <ChevronUp size={14} style={{ color: 'var(--color-text-primary)' }} />

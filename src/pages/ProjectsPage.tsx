@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Plus, FolderOpen, Search } from 'lucide-react'
+import { Plus, Search } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { PageHeader } from '../components/PageHeader'
 import { Button } from '../components/Button'
 import { SegmentedToggle } from '../components/SegmentedToggle'
@@ -7,32 +8,25 @@ import { SearchInput } from '../components/SearchInput'
 import { ProjectCard } from '../components/ProjectCard'
 import { EmptyState } from '../components/EmptyState'
 import { useToast } from '../contexts/ToastContext'
-import { PROJECTS, CURRENT_USER } from '../data/mockData'
-import type { Project } from '../data/mockData'
+import { useData } from '../contexts/DataContext'
+import { CURRENT_USER } from '../data/mockData'
 
 type FilterMode = 'all' | 'mine'
 
 export function ProjectsPage() {
+  const navigate = useNavigate()
   const { toast } = useToast()
+  const { projects, updateProject } = useData()
   const [filterMode, setFilterMode] = useState<FilterMode>('mine')
   const [search, setSearch] = useState('')
-  const [projects, setProjects] = useState<Project[]>(PROJECTS)
 
   const handleArchiveToggle = (id: string) => {
-    setProjects((prev) =>
-      prev.map((p) =>
-        p.id === id
-          ? { ...p, status: p.status === 'active' ? 'archived' : 'active' }
-          : p,
-      ),
-    )
     const project = projects.find((p) => p.id === id)!
     const isCurrentlyArchived = project.status === 'archived'
+    updateProject(id, { status: isCurrentlyArchived ? 'active' : 'archived' })
     toast({
       variant: 'success',
-      title: isCurrentlyArchived
-        ? 'Project unarchived'
-        : 'Project archived',
+      title: isCurrentlyArchived ? 'Project unarchived' : 'Project archived',
       message: project.name,
     })
   }
@@ -58,7 +52,7 @@ export function ProjectsPage() {
         title="Projects"
         description="Manage your legal document review projects."
         action={
-          <Button variant="primary">
+          <Button variant="primary" onClick={() => navigate('/projects/new')}>
             <Plus size={16} strokeWidth={2.5} />
             New Project
           </Button>
