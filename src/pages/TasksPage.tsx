@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, Search, CheckSquare, MoreHorizontal } from 'lucide-react'
+import { Plus, Search, CheckSquare } from 'lucide-react'
 import { PageHeader } from '../components/PageHeader'
 import { Button } from '../components/Button'
 import { SegmentedToggle } from '../components/SegmentedToggle'
@@ -30,15 +30,15 @@ function isOverdue(iso: string) {
 
 // ── Column definitions ────────────────────────────────────────────────────────
 
-const COLS = [
-  { key: 'name',       label: 'Task name',         width: '260px' },
-  { key: 'project',    label: 'Project',            width: '160px' },
-  { key: 'client',     label: 'Client',             width: '160px' },
-  { key: 'dueDate',    label: 'Due date',           width: '110px' },
-  { key: 'automation', label: 'Automation result',  width: '170px' },
-  { key: 'priority',   label: 'Priority',           width: '80px', className: 'num' },
-  { key: 'assignee',   label: 'Assignee',           width: '140px' },
-] as const
+const COLS: { key: string; label: string; width: string; className?: string }[] = [
+  { key: 'name',       label: 'Task name',        width: '260px' },
+  { key: 'project',    label: 'Project',           width: '160px' },
+  { key: 'client',     label: 'Client',            width: '160px' },
+  { key: 'dueDate',    label: 'Due date',          width: '110px' },
+  { key: 'automation', label: 'Automation result', width: '170px' },
+  { key: 'priority',   label: 'Priority',          width: '80px',  className: 'num' },
+  { key: 'assignee',   label: 'Assignee',          width: '140px' },
+]
 
 // Width of the actions column — used for --sticky-right offset on Status
 const ACTIONS_COL_WIDTH = 44
