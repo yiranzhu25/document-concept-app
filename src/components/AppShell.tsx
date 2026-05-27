@@ -5,7 +5,6 @@ import { Sidebar } from './Sidebar'
 export function AppShell() {
   const [collapsed, setCollapsed] = useState(false)
   const location = useLocation()
-  const sidebarWidth = collapsed ? 64 : 240
 
   return (
     <div
@@ -13,7 +12,7 @@ export function AppShell() {
         display: 'flex',
         height: '100vh',
         overflow: 'hidden',
-        backgroundColor: 'var(--color-bg-app)',
+        backgroundColor: 'var(--cream)',
       }}
     >
       <Sidebar collapsed={collapsed} onToggle={() => setCollapsed((c) => !c)} />
@@ -22,27 +21,25 @@ export function AppShell() {
       <main
         style={{
           flex: 1,
-          marginLeft: `${sidebarWidth}px`,
-          transition: `margin-left var(--duration-standard) var(--easing-standard)`,
+          marginLeft: collapsed ? 'var(--nav-collapsed)' : 'var(--nav-expanded)',
+          transition: `margin-left 220ms var(--ease-out)`,
           overflowY: 'auto',
           overflowX: 'hidden',
           minHeight: '100vh',
+          backgroundColor: 'var(--cream)',
         }}
       >
         <div
           style={{
-            padding: '32px 40px',
+            padding: '40px 48px',
             minHeight: '100%',
+            maxWidth: 'calc(var(--content-max) + 96px)',
           }}
         >
-          {/*
-            key={location.key} triggers a fresh mount + CSS animation on every
-            navigation, giving a smooth fade-in + slide-up page transition.
-          */}
           <div
             key={location.key}
             style={{
-              animation: `pageIn var(--duration-deliberate) var(--easing-decelerate) both`,
+              animation: `pageIn var(--dur-slow) var(--ease-out) both`,
               willChange: 'opacity, transform',
             }}
           >

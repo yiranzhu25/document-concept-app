@@ -1,9 +1,8 @@
-// Base modal + confirmation modal variant — Addendum A14
 import { useEffect, type ReactNode } from 'react'
 import { X, AlertTriangle, AlertCircle } from 'lucide-react'
 import { Button } from './Button'
 
-// ─── Base Modal ───────────────────────────────────────────────────────────────
+// ─── Base Modal ──────────────────────────────────────────────────────────────
 
 interface ModalProps {
   open: boolean
@@ -26,29 +25,21 @@ export function Modal({
   size = 'md',
   disableBackdropClick = false,
 }: ModalProps) {
-  // Trap keyboard
   useEffect(() => {
     if (!open) return
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
-    }
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
     document.addEventListener('keydown', handler)
     return () => document.removeEventListener('keydown', handler)
   }, [open, onClose])
 
-  // Scroll lock
   useEffect(() => {
-    if (open) {
-      document.body.style.overflow = 'hidden'
-    } else {
-      document.body.style.overflow = ''
-    }
+    document.body.style.overflow = open ? 'hidden' : ''
     return () => { document.body.style.overflow = '' }
   }, [open])
 
   if (!open) return null
 
-  const maxWidth = { sm: '480px', md: '640px', lg: '800px' }[size]
+  const maxWidth = { sm: '480px', md: '600px', lg: '800px' }[size]
 
   return (
     <div
@@ -57,28 +48,27 @@ export function Modal({
         position: 'fixed',
         inset: 0,
         zIndex: 60,
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        backdropFilter: 'blur(4px)',
+        backgroundColor: 'var(--backdrop)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         padding: '24px',
-        animation: 'fadeIn var(--duration-deliberate) var(--easing-decelerate)',
+        animation: 'fadeIn var(--dur-slow) var(--ease-out)',
       }}
     >
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          backgroundColor: 'var(--color-bg-surface-raised)',
-          border: '1px solid var(--color-border-default)',
-          borderRadius: 'var(--radius-4)',
-          boxShadow: 'var(--shadow-4)',
+          backgroundColor: 'var(--surface-1)',
+          border: '1px solid var(--rule)',
+          borderRadius: 'var(--radius-lg)',
+          boxShadow: 'var(--shadow-lg)',
           width: '100%',
           maxWidth,
           maxHeight: 'calc(100vh - 48px)',
           display: 'flex',
           flexDirection: 'column',
-          animation: 'slideUp var(--duration-deliberate) var(--easing-decelerate)',
+          animation: 'slideUp var(--dur-slow) var(--ease-out)',
         }}
       >
         {/* Header */}
@@ -87,8 +77,8 @@ export function Modal({
             display: 'flex',
             alignItems: 'flex-start',
             justifyContent: 'space-between',
-            padding: '20px 24px 16px',
-            borderBottom: '1px solid var(--color-border-default)',
+            padding: '20px 24px 18px',
+            borderBottom: '1px solid var(--rule)',
             flexShrink: 0,
           }}
         >
@@ -96,23 +86,17 @@ export function Modal({
             <h2
               style={{
                 margin: 0,
-                fontSize: '18px',
+                fontSize: 'var(--text-xl)',
                 fontWeight: 600,
-                color: 'var(--color-text-primary)',
-                lineHeight: '26px',
-                letterSpacing: '-0.02em',
+                color: 'var(--ink)',
+                lineHeight: 'var(--leading-snug)',
+                letterSpacing: 'var(--track-snug)',
               }}
             >
               {title}
             </h2>
             {subtitle && (
-              <p
-                style={{
-                  margin: '4px 0 0',
-                  fontSize: '13px',
-                  color: 'var(--color-text-secondary)',
-                }}
-              >
+              <p style={{ margin: '4px 0 0', fontSize: 'var(--text-sm)', color: 'var(--ink-3)' }}>
                 {subtitle}
               </p>
             )}
@@ -126,34 +110,29 @@ export function Modal({
               width: '28px',
               height: '28px',
               border: 'none',
-              borderRadius: 'var(--radius-2)',
+              borderRadius: 'var(--radius-sm)',
               backgroundColor: 'transparent',
               cursor: 'pointer',
-              color: 'var(--color-text-secondary)',
+              color: 'var(--ink-3)',
               flexShrink: 0,
               marginLeft: '12px',
+              marginTop: '2px',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = 'var(--color-bg-subtle)'
-              e.currentTarget.style.color = 'var(--color-text-primary)'
+              e.currentTarget.style.backgroundColor = 'var(--surface-2)'
+              e.currentTarget.style.color = 'var(--ink)'
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.backgroundColor = 'transparent'
-              e.currentTarget.style.color = 'var(--color-text-secondary)'
+              e.currentTarget.style.color = 'var(--ink-3)'
             }}
           >
-            <X size={16} />
+            <X size={16} strokeWidth={1.5} />
           </button>
         </div>
 
         {/* Body */}
-        <div
-          style={{
-            flex: 1,
-            padding: '20px 24px',
-            overflowY: 'auto',
-          }}
-        >
+        <div style={{ flex: 1, padding: '20px 24px', overflowY: 'auto' }}>
           {children}
         </div>
 
@@ -162,10 +141,10 @@ export function Modal({
           <div
             style={{
               padding: '16px 24px',
-              borderTop: '1px solid var(--color-border-default)',
+              borderTop: '1px solid var(--rule)',
               display: 'flex',
               justifyContent: 'flex-end',
-              gap: '12px',
+              gap: '10px',
               flexShrink: 0,
             }}
           >
@@ -175,14 +154,14 @@ export function Modal({
       </div>
 
       <style>{`
-        @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: translateY(0) } }
+        @keyframes fadeIn  { from { opacity: 0 }                      to { opacity: 1 } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(12px) } to { opacity: 1; transform: translateY(0) } }
       `}</style>
     </div>
   )
 }
 
-// ─── Confirmation Modal (A14) ─────────────────────────────────────────────────
+// ─── Confirmation Modal ──────────────────────────────────────────────────────
 
 interface ConfirmModalProps {
   open: boolean
@@ -207,28 +186,21 @@ export function ConfirmModal({
 }: ConfirmModalProps) {
   useEffect(() => {
     if (!open) return
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
-    }
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
     document.addEventListener('keydown', handler)
     return () => document.removeEventListener('keydown', handler)
   }, [open, onClose])
 
   useEffect(() => {
-    if (open) document.body.style.overflow = 'hidden'
-    else document.body.style.overflow = ''
+    document.body.style.overflow = open ? 'hidden' : ''
     return () => { document.body.style.overflow = '' }
   }, [open])
 
   if (!open) return null
 
   const Icon = variant === 'destructive' ? AlertTriangle : AlertCircle
-  const iconBg = variant === 'destructive'
-    ? 'var(--color-negative-subtle)'
-    : 'var(--color-warning-subtle)'
-  const iconColor = variant === 'destructive'
-    ? 'var(--color-negative)'
-    : 'var(--color-warning)'
+  const iconBg    = variant === 'destructive' ? 'var(--danger-soft)'  : 'var(--warning-soft)'
+  const iconColor = variant === 'destructive' ? 'var(--danger)'        : 'var(--warning)'
 
   return (
     <div
@@ -236,32 +208,30 @@ export function ConfirmModal({
         position: 'fixed',
         inset: 0,
         zIndex: 60,
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        backdropFilter: 'blur(4px)',
+        backgroundColor: 'var(--backdrop)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         padding: '24px',
-        animation: 'fadeIn var(--duration-deliberate) var(--easing-decelerate)',
+        animation: 'fadeIn var(--dur-slow) var(--ease-out)',
       }}
     >
       <div
         style={{
-          backgroundColor: 'var(--color-bg-surface-raised)',
-          border: '1px solid var(--color-border-default)',
-          borderRadius: 'var(--radius-4)',
-          boxShadow: 'var(--shadow-4)',
+          backgroundColor: 'var(--surface-1)',
+          border: '1px solid var(--rule)',
+          borderRadius: 'var(--radius-lg)',
+          boxShadow: 'var(--shadow-lg)',
           width: '100%',
-          maxWidth: '480px',
+          maxWidth: '440px',
           padding: '32px 24px 24px',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           textAlign: 'center',
-          animation: 'slideUp var(--duration-deliberate) var(--easing-decelerate)',
+          animation: 'slideUp var(--dur-slow) var(--ease-out)',
         }}
       >
-        {/* Icon */}
         <div
           style={{
             display: 'flex',
@@ -273,16 +243,16 @@ export function ConfirmModal({
             backgroundColor: iconBg,
           }}
         >
-          <Icon size={24} style={{ color: iconColor }} />
+          <Icon size={22} strokeWidth={1.5} style={{ color: iconColor }} />
         </div>
 
         <h2
           style={{
             margin: '16px 0 0',
-            fontSize: '18px',
+            fontSize: 'var(--text-xl)',
             fontWeight: 600,
-            color: 'var(--color-text-primary)',
-            lineHeight: '26px',
+            color: 'var(--ink)',
+            lineHeight: 'var(--leading-snug)',
           }}
         >
           {title}
@@ -292,9 +262,9 @@ export function ConfirmModal({
           <p
             style={{
               margin: '8px 0 0',
-              fontSize: '13px',
-              color: 'var(--color-text-secondary)',
-              lineHeight: '20px',
+              fontSize: 'var(--text-sm)',
+              color: 'var(--ink-3)',
+              lineHeight: 'var(--leading-relaxed)',
               maxWidth: '360px',
             }}
           >
@@ -302,19 +272,10 @@ export function ConfirmModal({
           </p>
         )}
 
-        <div
-          style={{
-            display: 'flex',
-            gap: '12px',
-            marginTop: '24px',
-            justifyContent: 'center',
-          }}
-        >
-          <Button variant="secondary" onClick={onClose}>
-            {cancelLabel}
-          </Button>
+        <div style={{ display: 'flex', gap: '10px', marginTop: '24px', justifyContent: 'center' }}>
+          <Button variant="secondary" onClick={onClose}>{cancelLabel}</Button>
           <Button
-            variant="primary"
+            variant={variant === 'destructive' ? 'danger' : 'primary'}
             onClick={() => { onConfirm(); onClose() }}
           >
             {confirmLabel}
@@ -323,8 +284,8 @@ export function ConfirmModal({
       </div>
 
       <style>{`
-        @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: translateY(0) } }
+        @keyframes fadeIn  { from { opacity: 0 } to { opacity: 1 } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(12px) } to { opacity: 1; transform: translateY(0) } }
       `}</style>
     </div>
   )

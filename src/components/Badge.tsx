@@ -1,4 +1,4 @@
-// Status, severity, confidence, priority, and document-type badges (A4)
+// Status, severity, confidence, priority, and document-type badges
 
 interface BadgeProps {
   variant:
@@ -19,29 +19,28 @@ interface BadgeProps {
     | 'doc-supporting'
   label?: string
   dot?: boolean
-  // For priority variant
-  value?: number
+  value?: number  // for priority variant
 }
 
 const VARIANT_STYLES: Record<
   BadgeProps['variant'],
   { bg: string; color: string }
 > = {
-  'active':               { bg: 'var(--color-positive-subtle)', color: 'var(--color-positive)' },
-  'archived':             { bg: 'var(--color-bg-subtle)',        color: 'var(--color-text-secondary)' },
-  'extraction-progress':  { bg: 'var(--color-info-subtle)',      color: 'var(--color-info)' },
-  'extraction-failed':    { bg: 'var(--color-negative-subtle)',  color: 'var(--color-negative)' },
-  'pending-review':       { bg: 'var(--color-warning-subtle)',   color: 'var(--color-warning)' },
-  'complete':             { bg: 'var(--color-positive-subtle)',  color: 'var(--color-positive)' },
-  'critical':             { bg: 'var(--color-negative-subtle)',  color: 'var(--color-negative)' },
-  'warning':              { bg: 'var(--color-warning-subtle)',   color: 'var(--color-warning)' },
-  'info':                 { bg: 'var(--color-info-subtle)',      color: 'var(--color-info)' },
-  'high':                 { bg: 'var(--color-positive-subtle)',  color: 'var(--color-positive)' },
-  'medium':               { bg: 'var(--color-warning-subtle)',   color: 'var(--color-warning)' },
-  'low':                  { bg: 'var(--color-negative-subtle)',  color: 'var(--color-negative)' },
-  'priority':             { bg: 'var(--color-bg-subtle)',        color: 'var(--color-text-primary)' },
-  'doc-main':             { bg: 'var(--color-action-primary)',   color: 'var(--color-action-primary-text)' },
-  'doc-supporting':       { bg: 'var(--color-bg-subtle)',        color: 'var(--color-text-secondary)' },
+  'active':               { bg: 'var(--success-soft)',  color: 'var(--success)' },
+  'archived':             { bg: 'var(--surface-2)',      color: 'var(--ink-3)' },
+  'extraction-progress':  { bg: 'var(--info-soft)',      color: 'var(--info)' },
+  'extraction-failed':    { bg: 'var(--danger-soft)',    color: 'var(--danger)' },
+  'pending-review':       { bg: 'var(--warning-soft)',   color: 'var(--warning)' },
+  'complete':             { bg: 'var(--success-soft)',   color: 'var(--success)' },
+  'critical':             { bg: 'var(--danger-soft)',    color: 'var(--danger)' },
+  'warning':              { bg: 'var(--warning-soft)',   color: 'var(--warning)' },
+  'info':                 { bg: 'var(--info-soft)',      color: 'var(--info)' },
+  'high':                 { bg: 'var(--success-soft)',   color: 'var(--success)' },
+  'medium':               { bg: 'var(--warning-soft)',   color: 'var(--warning)' },
+  'low':                  { bg: 'var(--danger-soft)',    color: 'var(--danger)' },
+  'priority':             { bg: 'var(--surface-2)',      color: 'var(--ink-2)' },
+  'doc-main':             { bg: 'var(--accent)',         color: 'var(--cream)' },
+  'doc-supporting':       { bg: 'var(--surface-2)',      color: 'var(--ink-3)' },
 }
 
 const STATUS_LABELS: Partial<Record<BadgeProps['variant'], string>> = {
@@ -64,14 +63,15 @@ export function Badge({ variant, label, dot = true, value }: BadgeProps) {
           display: 'inline-flex',
           alignItems: 'center',
           padding: '2px 8px',
-          borderRadius: 'var(--radius-pill)',
+          borderRadius: 'var(--radius-xs)',
           backgroundColor: styles.bg,
           color: styles.color,
-          fontSize: '11px',
+          fontSize: 'var(--text-xs)',
           fontFamily: 'var(--font-mono)',
           fontWeight: 600,
-          border: '1px solid var(--color-border-default)',
+          border: '1px solid var(--rule)',
           letterSpacing: '0.02em',
+          fontVariantNumeric: 'tabular-nums',
         }}
       >
         {value ?? displayLabel}
@@ -84,19 +84,16 @@ export function Badge({ variant, label, dot = true, value }: BadgeProps) {
       style={{
         display: 'inline-flex',
         alignItems: 'center',
-        gap: '6px',
-        padding: '4px 10px',
-        borderRadius: 'var(--radius-pill)',
+        gap: '5px',
+        padding: '2px 8px',
+        borderRadius: 'var(--radius-xs)',
         backgroundColor: styles.bg,
         color: styles.color,
-        fontSize: '11px',
-        fontWeight: 600,
-        letterSpacing: '0.04em',
-        textTransform: 'uppercase',
+        fontSize: 'var(--text-xs)',
+        fontWeight: 500,
+        letterSpacing: 'var(--track-snug)',
         whiteSpace: 'nowrap',
-        ...(variant === 'doc-supporting'
-          ? { border: '1px solid var(--color-border-default)' }
-          : {}),
+        ...(variant === 'doc-supporting' ? { border: '1px solid var(--rule)' } : {}),
       }}
     >
       {dot && (
@@ -116,16 +113,14 @@ export function Badge({ variant, label, dot = true, value }: BadgeProps) {
 }
 
 // Helper: map task/project status strings to badge variants
-export function statusToBadgeVariant(
-  status: string,
-): BadgeProps['variant'] {
+export function statusToBadgeVariant(status: string): BadgeProps['variant'] {
   switch (status) {
-    case 'active':                return 'active'
-    case 'archived':              return 'archived'
-    case 'Extraction in progress':return 'extraction-progress'
-    case 'Extraction failed':     return 'extraction-failed'
-    case 'Pending review':        return 'pending-review'
-    case 'Complete':              return 'complete'
-    default:                      return 'info'
+    case 'active':                 return 'active'
+    case 'archived':               return 'archived'
+    case 'Extraction in progress': return 'extraction-progress'
+    case 'Extraction failed':      return 'extraction-failed'
+    case 'Pending review':         return 'pending-review'
+    case 'Complete':               return 'complete'
+    default:                       return 'info'
   }
 }

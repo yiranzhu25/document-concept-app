@@ -1,4 +1,3 @@
-// Base text input — section 5.2
 interface InputProps {
   value: string
   onChange: (val: string) => void
@@ -20,27 +19,37 @@ export function Input({ value, onChange, placeholder, error, disabled, type = 't
         width: '100%',
         height: '36px',
         padding: '0 12px',
-        fontSize: '13px',
-        color: 'var(--color-text-primary)',
-        backgroundColor: disabled ? 'var(--color-bg-subtle)' : 'var(--color-bg-surface)',
-        border: `1px solid ${error ? 'var(--color-negative)' : 'var(--color-border-default)'}`,
-        borderRadius: 'var(--radius-2)',
+        fontSize: 'var(--text-sm)',
+        color: 'var(--ink)',
+        backgroundColor: disabled ? 'var(--surface-2)' : 'var(--surface-1)',
+        border: `1px solid ${error ? 'var(--danger)' : 'var(--rule-strong)'}`,
+        borderRadius: 'var(--radius-sm)',
         outline: 'none',
-        fontFamily: 'inherit',
+        fontFamily: 'var(--font-sans)',
         cursor: disabled ? 'not-allowed' : 'text',
-        opacity: disabled ? 0.6 : 1,
+        opacity: disabled ? 0.5 : 1,
         boxSizing: 'border-box',
-        transition: `border-color var(--duration-fast) var(--easing-standard)`,
+        transition: `border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out)`,
       }}
       onFocus={(e) => {
         if (!error) {
-          e.currentTarget.style.borderColor = 'var(--color-border-focus)'
-          e.currentTarget.style.boxShadow = '0 0 0 3px rgba(45,70,185,0.12)'
+          e.currentTarget.style.borderColor = 'var(--ink-3)'
+          e.currentTarget.style.boxShadow = '0 1px 0 0 rgba(27,24,19,0.04), 0 2px 6px -1px rgba(27,24,19,0.10)'
         }
       }}
       onBlur={(e) => {
-        e.currentTarget.style.borderColor = error ? 'var(--color-negative)' : 'var(--color-border-default)'
+        e.currentTarget.style.borderColor = error ? 'var(--danger)' : 'var(--rule-strong)'
         e.currentTarget.style.boxShadow = 'none'
+      }}
+      onMouseEnter={(e) => {
+        if (document.activeElement !== e.currentTarget && !disabled) {
+          e.currentTarget.style.borderColor = 'var(--ink-3)'
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (document.activeElement !== e.currentTarget && !disabled) {
+          e.currentTarget.style.borderColor = error ? 'var(--danger)' : 'var(--rule-strong)'
+        }
       }}
     />
   )

@@ -1,5 +1,3 @@
-// Horizontal tab bar — Addendum A6
-
 export interface Tab<T extends string> {
   id: T
   label: string
@@ -17,13 +15,11 @@ export function TabBar<T extends string>({ tabs, active, onChange }: TabBarProps
     <div
       role="tablist"
       style={{
-        height: '44px',
-        borderBottom: '1px solid var(--color-border-default)',
-        display: 'flex',
-        alignItems: 'flex-end',
+        display: 'inline-flex',
+        borderBottom: '1px solid var(--rule)',
         gap: 0,
-        backgroundColor: 'var(--color-bg-surface)',
         flexShrink: 0,
+        width: '100%',
       }}
     >
       {tabs.map((tab) => {
@@ -38,34 +34,42 @@ export function TabBar<T extends string>({ tabs, active, onChange }: TabBarProps
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
-              padding: '10px 16px',
-              fontSize: '13px',
+              padding: '10px 14px',
+              fontSize: 'var(--text-sm)',
               fontWeight: isActive ? 600 : 500,
-              color: isActive
-                ? 'var(--color-text-primary)'
-                : 'var(--color-text-secondary)',
+              letterSpacing: 'var(--track-snug)',
+              color: isActive ? 'var(--ink)' : 'var(--ink-3)',
               background: 'none',
               border: 'none',
-              borderBottom: isActive
-                ? '2px solid var(--color-action-primary)'
-                : '2px solid transparent',
               cursor: 'pointer',
               position: 'relative',
-              transition: `color var(--duration-fast) var(--easing-standard),
-                           border-color var(--duration-fast) var(--easing-standard)`,
+              transition: `color var(--dur-fast) var(--ease-out)`,
               marginBottom: '-1px',
               whiteSpace: 'nowrap',
+              fontFamily: 'var(--font-sans)',
             }}
             onMouseEnter={(e) => {
-              if (!isActive)
-                e.currentTarget.style.color = 'var(--color-text-primary)'
+              if (!isActive) e.currentTarget.style.color = 'var(--ink)'
             }}
             onMouseLeave={(e) => {
-              if (!isActive)
-                e.currentTarget.style.color = 'var(--color-text-secondary)'
+              if (!isActive) e.currentTarget.style.color = 'var(--ink-3)'
             }}
           >
             {tab.label}
+            {/* Underline indicator */}
+            {isActive && (
+              <span
+                style={{
+                  position: 'absolute',
+                  left: '8px',
+                  right: '8px',
+                  bottom: '-1px',
+                  height: '2px',
+                  backgroundColor: 'var(--accent)',
+                  borderRadius: '2px 2px 0 0',
+                }}
+              />
+            )}
             {tab.badge !== undefined && tab.badge > 0 && (
               <span
                 style={{
@@ -75,12 +79,13 @@ export function TabBar<T extends string>({ tabs, active, onChange }: TabBarProps
                   minWidth: '18px',
                   height: '18px',
                   padding: '0 5px',
-                  borderRadius: 'var(--radius-pill)',
-                  backgroundColor: 'var(--color-negative)',
-                  color: '#fff',
+                  borderRadius: 'var(--radius-full)',
+                  backgroundColor: isActive ? 'var(--ink)' : 'var(--surface-3)',
+                  color: isActive ? 'var(--cream)' : 'var(--ink-3)',
                   fontSize: '10px',
                   fontWeight: 600,
                   lineHeight: 1,
+                  fontVariantNumeric: 'tabular-nums',
                 }}
               >
                 {tab.badge}

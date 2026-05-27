@@ -1,4 +1,4 @@
-// Segmented toggle / button group filter (A19)
+// Segmented switcher — Clearmark style
 
 interface SegmentedToggleProps<T extends string> {
   options: { value: T; label: string }[]
@@ -16,10 +16,12 @@ export function SegmentedToggle<T extends string>({
       role="group"
       style={{
         display: 'inline-flex',
-        backgroundColor: 'var(--color-bg-subtle)',
-        border: '1px solid var(--color-border-default)',
-        borderRadius: 'var(--radius-pill)',
+        alignItems: 'center',
+        gap: '2px',
         padding: '3px',
+        backgroundColor: 'var(--surface-2)',
+        border: '1px solid var(--rule)',
+        borderRadius: 'var(--radius-full)',
       }}
     >
       {options.map((opt) => {
@@ -31,29 +33,31 @@ export function SegmentedToggle<T extends string>({
             aria-checked={active}
             onClick={() => onChange(opt.value)}
             style={{
-              padding: '6px 16px',
-              borderRadius: 'var(--radius-pill)',
-              fontSize: '12px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              padding: '5px 14px',
+              borderRadius: 'var(--radius-full)',
+              fontFamily: 'var(--font-sans)',
+              fontSize: 'var(--text-sm)',
               fontWeight: active ? 600 : 500,
-              color: active
-                ? 'var(--color-text-primary)'
-                : 'var(--color-text-secondary)',
-              backgroundColor: active
-                ? 'var(--color-bg-surface)'
-                : 'transparent',
-              boxShadow: active ? 'var(--shadow-1)' : 'none',
+              letterSpacing: 'var(--track-snug)',
+              color: active ? 'var(--ink)' : 'var(--ink-3)',
+              backgroundColor: active ? 'var(--surface-1)' : 'transparent',
+              boxShadow: active
+                ? '0 1px 0 0 rgba(27,24,19,0.04), 0 2px 6px -1px rgba(27,24,19,0.10)'
+                : 'none',
               border: 'none',
               cursor: 'pointer',
-              transition: `background-color var(--duration-fast) var(--easing-standard),
-                           color var(--duration-fast) var(--easing-standard),
-                           box-shadow var(--duration-fast) var(--easing-standard)`,
+              transition: `background-color var(--dur-fast) var(--ease-out),
+                           color var(--dur-fast) var(--ease-out),
+                           box-shadow var(--dur-fast) var(--ease-out)`,
               whiteSpace: 'nowrap',
             }}
             onMouseEnter={(e) => {
-              if (!active) e.currentTarget.style.color = 'var(--color-text-primary)'
+              if (!active) e.currentTarget.style.color = 'var(--ink)'
             }}
             onMouseLeave={(e) => {
-              if (!active) e.currentTarget.style.color = 'var(--color-text-secondary)'
+              if (!active) e.currentTarget.style.color = 'var(--ink-3)'
             }}
           >
             {opt.label}

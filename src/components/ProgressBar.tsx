@@ -1,6 +1,5 @@
-// Linear progress bar — Section 5.11
 interface ProgressBarProps {
-  value: number     // 0–100
+  value: number   // 0–100
   label?: string
   height?: number
 }
@@ -13,8 +12,8 @@ export function ProgressBar({ value, label, height = 6 }: ProgressBarProps) {
         style={{
           width: '100%',
           height: `${height}px`,
-          backgroundColor: 'var(--color-bg-subtle)',
-          borderRadius: 'var(--radius-pill)',
+          backgroundColor: 'var(--surface-3)',
+          borderRadius: 'var(--radius-full)',
           overflow: 'hidden',
         }}
       >
@@ -22,9 +21,9 @@ export function ProgressBar({ value, label, height = 6 }: ProgressBarProps) {
           style={{
             width: `${pct}%`,
             height: '100%',
-            backgroundColor: 'var(--color-action-primary)',
-            borderRadius: 'var(--radius-pill)',
-            transition: `width var(--duration-standard) var(--easing-standard)`,
+            backgroundColor: 'var(--accent)',
+            borderRadius: 'var(--radius-full)',
+            transition: `width var(--dur-base) var(--ease-out)`,
           }}
         />
       </div>
@@ -32,10 +31,11 @@ export function ProgressBar({ value, label, height = 6 }: ProgressBarProps) {
         <p
           style={{
             margin: '4px 0 0',
-            fontSize: '11px',
+            fontSize: 'var(--text-xs)',
             fontWeight: 500,
-            color: 'var(--color-text-secondary)',
+            color: 'var(--ink-3)',
             textAlign: 'right',
+            fontVariantNumeric: 'tabular-nums',
           }}
         >
           {label}

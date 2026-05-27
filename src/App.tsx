@@ -16,27 +16,27 @@ function TaskDetailSkeleton() {
   return (
     <div
       style={{
-        margin: '-32px -40px',
+        margin: '-40px -48px',
         height: '100vh',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: 'var(--color-bg-app)',
+        backgroundColor: 'var(--cream)',
       }}
     >
       <div style={{ textAlign: 'center' }}>
         <div
           style={{
-            width: '32px',
-            height: '32px',
-            border: '3px solid var(--color-border-default)',
-            borderTopColor: 'var(--color-action-primary)',
+            width: '28px',
+            height: '28px',
+            border: '2px solid var(--rule-strong)',
+            borderTopColor: 'var(--accent)',
             borderRadius: '50%',
             animation: 'spin 0.7s linear infinite',
             margin: '0 auto 12px',
           }}
         />
-        <p style={{ fontSize: '13px', color: 'var(--color-text-secondary)', margin: 0 }}>
+        <p style={{ fontSize: 'var(--text-sm)', color: 'var(--ink-3)', margin: 0 }}>
           Loading review…
         </p>
       </div>
@@ -46,7 +46,7 @@ function TaskDetailSkeleton() {
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/document-concept-app">
       <Routes>
         <Route path="/" element={<Navigate to="/projects" replace />} />
         <Route element={<AppShell />}>

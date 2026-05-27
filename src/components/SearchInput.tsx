@@ -1,4 +1,3 @@
-// Search input (A20) — pill shape, leading search icon, trailing clear
 import { Search, X } from 'lucide-react'
 
 interface SearchInputProps {
@@ -11,7 +10,7 @@ interface SearchInputProps {
 export function SearchInput({
   value,
   onChange,
-  placeholder = 'Search...',
+  placeholder = 'Search…',
   width = 280,
 }: SearchInputProps) {
   return (
@@ -22,15 +21,15 @@ export function SearchInput({
         flexShrink: 0,
       }}
     >
-      {/* Leading icon */}
       <Search
         size={14}
+        strokeWidth={1.5}
         style={{
           position: 'absolute',
-          left: '12px',
+          left: '11px',
           top: '50%',
           transform: 'translateY(-50%)',
-          color: 'var(--color-text-secondary)',
+          color: 'var(--ink-3)',
           pointerEvents: 'none',
         }}
       />
@@ -43,38 +42,37 @@ export function SearchInput({
         style={{
           width: '100%',
           height: '36px',
-          paddingLeft: '34px',
-          paddingRight: value ? '32px' : '12px',
-          fontSize: '13px',
-          lineHeight: '22px',
-          color: 'var(--color-text-primary)',
-          backgroundColor: 'var(--color-bg-surface)',
-          border: '1px solid var(--color-border-default)',
-          borderRadius: 'var(--radius-pill)',
+          paddingLeft: '32px',
+          paddingRight: value ? '30px' : '12px',
+          fontSize: 'var(--text-sm)',
+          color: 'var(--ink)',
+          backgroundColor: 'var(--surface-1)',
+          border: '1px solid var(--rule-strong)',
+          borderRadius: 'var(--radius-sm)',
           outline: 'none',
-          transition: `border-color var(--duration-fast) var(--easing-standard)`,
+          fontFamily: 'var(--font-sans)',
+          transition: `border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out)`,
         }}
         onFocus={(e) => {
-          e.currentTarget.style.borderColor = 'var(--color-border-focus)'
-          e.currentTarget.style.boxShadow = '0 0 0 3px rgba(45,70,185,0.12)'
+          e.currentTarget.style.borderColor = 'var(--ink-3)'
+          e.currentTarget.style.boxShadow = '0 1px 0 0 rgba(27,24,19,0.04), 0 2px 6px -1px rgba(27,24,19,0.10)'
         }}
         onBlur={(e) => {
-          e.currentTarget.style.borderColor = 'var(--color-border-default)'
+          e.currentTarget.style.borderColor = 'var(--rule-strong)'
           e.currentTarget.style.boxShadow = 'none'
         }}
         onMouseEnter={(e) => {
           if (document.activeElement !== e.currentTarget) {
-            e.currentTarget.style.borderColor = 'var(--color-border-strong)'
+            e.currentTarget.style.borderColor = 'var(--ink-3)'
           }
         }}
         onMouseLeave={(e) => {
           if (document.activeElement !== e.currentTarget) {
-            e.currentTarget.style.borderColor = 'var(--color-border-default)'
+            e.currentTarget.style.borderColor = 'var(--rule-strong)'
           }
         }}
       />
 
-      {/* Trailing clear button */}
       {value && (
         <button
           onClick={() => onChange('')}
@@ -92,18 +90,14 @@ export function SearchInput({
             border: 'none',
             background: 'none',
             cursor: 'pointer',
-            color: 'var(--color-text-secondary)',
+            color: 'var(--ink-3)',
             borderRadius: '50%',
             padding: 0,
           }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.color = 'var(--color-text-primary)'
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.color = 'var(--color-text-secondary)'
-          }}
+          onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--ink)' }}
+          onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--ink-3)' }}
         >
-          <X size={12} />
+          <X size={12} strokeWidth={1.5} />
         </button>
       )}
     </div>

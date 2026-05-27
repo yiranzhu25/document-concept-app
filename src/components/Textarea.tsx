@@ -1,4 +1,3 @@
-// Textarea with optional character count
 interface TextareaProps {
   value: string
   onChange: (val: string) => void
@@ -23,30 +22,30 @@ export function Textarea({ value, onChange, placeholder, rows = 4, maxLength, er
         disabled={disabled}
         style={{
           width: '100%',
-          padding: '8px 12px',
-          paddingBottom: maxLength ? '24px' : '8px',
-          fontSize: '13px',
-          lineHeight: '20px',
-          color: 'var(--color-text-primary)',
-          backgroundColor: disabled ? 'var(--color-bg-subtle)' : 'var(--color-bg-surface)',
-          border: `1px solid ${error ? 'var(--color-negative)' : 'var(--color-border-default)'}`,
-          borderRadius: 'var(--radius-2)',
+          padding: maxLength ? '10px 12px 24px' : '10px 12px',
+          fontSize: 'var(--text-sm)',
+          lineHeight: 1.5,
+          color: 'var(--ink)',
+          backgroundColor: disabled ? 'var(--surface-2)' : 'var(--surface-1)',
+          border: `1px solid ${error ? 'var(--danger)' : 'var(--rule-strong)'}`,
+          borderRadius: 'var(--radius-sm)',
           outline: 'none',
           resize: 'vertical',
-          fontFamily: 'inherit',
+          fontFamily: 'var(--font-sans)',
           boxSizing: 'border-box',
           cursor: disabled ? 'not-allowed' : 'text',
-          opacity: disabled ? 0.6 : 1,
-          transition: `border-color var(--duration-fast) var(--easing-standard)`,
+          opacity: disabled ? 0.5 : 1,
+          minHeight: '80px',
+          transition: `border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out)`,
         }}
         onFocus={(e) => {
           if (!error) {
-            e.currentTarget.style.borderColor = 'var(--color-border-focus)'
-            e.currentTarget.style.boxShadow = '0 0 0 3px rgba(45,70,185,0.12)'
+            e.currentTarget.style.borderColor = 'var(--ink-3)'
+            e.currentTarget.style.boxShadow = '0 1px 0 0 rgba(27,24,19,0.04), 0 2px 6px -1px rgba(27,24,19,0.10)'
           }
         }}
         onBlur={(e) => {
-          e.currentTarget.style.borderColor = error ? 'var(--color-negative)' : 'var(--color-border-default)'
+          e.currentTarget.style.borderColor = error ? 'var(--danger)' : 'var(--rule-strong)'
           e.currentTarget.style.boxShadow = 'none'
         }}
       />
@@ -56,9 +55,10 @@ export function Textarea({ value, onChange, placeholder, rows = 4, maxLength, er
             position: 'absolute',
             bottom: '8px',
             right: '10px',
-            fontSize: '11px',
-            color: value.length >= maxLength ? 'var(--color-negative)' : 'var(--color-text-placeholder)',
+            fontSize: 'var(--text-xs)',
+            color: value.length >= maxLength ? 'var(--danger)' : 'var(--ink-4)',
             pointerEvents: 'none',
+            fontVariantNumeric: 'tabular-nums',
           }}
         >
           {value.length}/{maxLength}

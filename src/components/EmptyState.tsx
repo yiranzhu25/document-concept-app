@@ -1,4 +1,3 @@
-// Empty state pattern (A13)
 import type { ReactNode } from 'react'
 
 interface EmptyStateProps {
@@ -24,22 +23,32 @@ export function EmptyState({
         alignItems: 'center',
         justifyContent: 'center',
         textAlign: 'center',
-        padding: '40px 24px',
+        padding: '48px 24px',
         minHeight: typeof minHeight === 'number' ? `${minHeight}px` : minHeight,
       }}
     >
-      <Icon
-        size={40}
-        strokeWidth={1.5}
-        style={{ color: 'var(--color-text-placeholder)' }}
-      />
+      <span
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '44px',
+          height: '44px',
+          borderRadius: 'var(--radius-md)',
+          backgroundColor: 'var(--surface-2)',
+          color: 'var(--ink-4)',
+          marginBottom: '16px',
+        }}
+      >
+        <Icon size={20} strokeWidth={1.5} />
+      </span>
       <p
         style={{
-          margin: '16px 0 0',
-          fontSize: '14px',
-          fontWeight: 500,
-          color: 'var(--color-text-primary)',
-          lineHeight: '22px',
+          margin: 0,
+          fontSize: 'var(--text-md)',
+          fontWeight: 600,
+          color: 'var(--ink)',
+          lineHeight: 'var(--leading-snug)',
         }}
       >
         {title}
@@ -47,19 +56,17 @@ export function EmptyState({
       {description && (
         <p
           style={{
-            margin: '4px 0 0',
-            fontSize: '13px',
-            color: 'var(--color-text-secondary)',
-            lineHeight: '20px',
+            margin: '6px 0 0',
+            fontSize: 'var(--text-sm)',
+            color: 'var(--ink-3)',
+            lineHeight: 'var(--leading-relaxed)',
             maxWidth: '320px',
           }}
         >
           {description}
         </p>
       )}
-      {action && (
-        <div style={{ marginTop: '16px' }}>{action}</div>
-      )}
+      {action && <div style={{ marginTop: '20px' }}>{action}</div>}
     </div>
   )
 }

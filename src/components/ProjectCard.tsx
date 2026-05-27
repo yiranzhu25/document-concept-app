@@ -1,7 +1,6 @@
-// Project card (A16)
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { FileText, Shield, Handshake, Key, MoreHorizontal } from 'lucide-react'
+import { FileText, Shield, Handshake, Key, MoreHorizontal, Archive, ArchiveRestore } from 'lucide-react'
 import type { Project, ProjectType } from '../data/mockData'
 import { Badge, statusToBadgeVariant } from './Badge'
 import { Avatar, AvatarStack } from './Avatar'
@@ -26,7 +25,6 @@ export function ProjectCard({ project, onArchiveToggle }: ProjectCardProps) {
   const isArchived = project.status === 'archived'
   const TypeIcon = TYPE_ICONS[project.type]
 
-  // Close menu on outside click
   useEffect(() => {
     if (!menuOpen) return
     const handler = (e: MouseEvent) => {
@@ -38,136 +36,104 @@ export function ProjectCard({ project, onArchiveToggle }: ProjectCardProps) {
     return () => document.removeEventListener('mousedown', handler)
   }, [menuOpen])
 
-  const formattedDate = new Date(project.effectiveDate).toLocaleDateString(
-    'en-US',
-    { month: 'short', day: 'numeric', year: 'numeric' },
-  )
+  // Format date as "12 Mar 2026" per Clearmark content standards
+  const formattedDate = new Date(project.effectiveDate).toLocaleDateString('en-GB', {
+    day: 'numeric', month: 'short', year: 'numeric',
+  })
 
   return (
     <div
-      onClick={() => navigate(`/projects/${project.id}`)}
+      onClick={() => !isArchived && navigate(`/projects/${project.id}`)}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
         position: 'relative',
-        backgroundColor: 'var(--color-bg-surface)',
-        border: '1px solid var(--color-border-default)',
-        borderRadius: 'var(--radius-4)',
-        padding: '20px',
+        backgroundColor: 'var(--surface-1)',
+        border: '1px solid var(--rule)',
+        borderRadius: 'var(--radius-md)',
+        padding: '18px',
         cursor: isArchived ? 'default' : 'pointer',
-        opacity: isArchived ? 0.6 : 1,
-        boxShadow: hovered && !isArchived ? 'var(--shadow-2)' : 'var(--shadow-1)',
-        transform: hovered && !isArchived ? 'translateY(-2px)' : 'translateY(0)',
-        transition: `transform var(--duration-standard) var(--easing-standard),
-                     box-shadow var(--duration-standard) var(--easing-standard),
-                     opacity var(--duration-fast) var(--easing-standard)`,
+        opacity: isArchived ? 0.55 : 1,
+        boxShadow: hovered && !isArchived ? 'var(--shadow-sm)' : 'none',
+        transition: `box-shadow var(--dur-fast) var(--ease-out), opacity var(--dur-fast) var(--ease-out)`,
         display: 'flex',
         flexDirection: 'column',
         gap: '12px',
       }}
     >
       {/* Header row: type icon + status badge */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
-        <TypeIcon
-          size={24}
-          strokeWidth={1.5}
-          style={{ color: 'var(--color-text-secondary)' }}
-        />
-        <Badge
-          variant={statusToBadgeVariant(project.status)}
-          dot
-        />
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '32px',
+            height: '32px',
+            borderRadius: 'var(--radius-md)',
+            backgroundColor: 'var(--surface-2)',
+            color: 'var(--ink-3)',
+          }}
+        >
+          <TypeIcon size={16} strokeWidth={1.5} />
+        </span>
+        <Badge variant={statusToBadgeVariant(project.status)} dot />
       </div>
 
       {/* Project name + client */}
       <div>
         <div
           style={{
-            fontSize: '15px',
+            fontSize: 'var(--text-md)',
             fontWeight: 600,
-            color: 'var(--color-text-primary)',
-            lineHeight: '22px',
-            letterSpacing: '-0.01em',
+            color: 'var(--ink)',
+            lineHeight: 'var(--leading-snug)',
+            letterSpacing: 'var(--track-snug)',
           }}
         >
           {project.name}
         </div>
         <div
           style={{
-            fontSize: '13px',
-            color: 'var(--color-text-secondary)',
-            marginTop: '2px',
-            lineHeight: '18px',
+            fontSize: 'var(--text-sm)',
+            color: 'var(--ink-3)',
+            marginTop: '3px',
           }}
         >
           {project.client}
         </div>
       </div>
 
-      {/* Effective date */}
-      <div
-        style={{
-          fontSize: '11px',
-          color: 'var(--color-text-secondary)',
-          letterSpacing: '0.02em',
-        }}
-      >
-        Effective: {formattedDate}
-      </div>
+      {/* Divider */}
+      <div style={{ borderTop: '1px solid var(--rule)', margin: '0 -18px' }} />
 
-      {/* Owner + assignees row */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginTop: '4px',
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-          }}
-        >
-          <Avatar
-            initials={project.owner.initials}
-            name={project.owner.name}
-            size={22}
-          />
-          <span
-            style={{
-              fontSize: '11px',
-              color: 'var(--color-text-secondary)',
-              letterSpacing: '0.02em',
-            }}
-          >
-            {project.owner.name.split(' ')[1]}
+      {/* Effective date + owner row */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <Avatar initials={project.owner.initials} name={project.owner.name} size={22} />
+          <span style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-3)' }}>
+            {project.owner.name.split(' ')[0]}
           </span>
         </div>
 
-        <AvatarStack
-          users={project.assignees}
-          max={3}
-          size={22}
-        />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span
+            style={{
+              fontSize: 'var(--text-2xs)',
+              color: 'var(--ink-4)',
+              fontVariantNumeric: 'tabular-nums',
+            }}
+          >
+            {formattedDate}
+          </span>
+          <AvatarStack users={project.assignees} max={3} size={20} />
+        </div>
       </div>
 
       {/* More menu — visible on hover */}
       <div
         ref={menuRef}
-        style={{
-          position: 'absolute',
-          bottom: '16px',
-          right: '16px',
-        }}
+        style={{ position: 'absolute', top: '14px', right: '14px' }}
         onClick={(e) => e.stopPropagation()}
       >
         <button
@@ -183,72 +149,68 @@ export function ProjectCard({ project, onArchiveToggle }: ProjectCardProps) {
             width: '28px',
             height: '28px',
             border: 'none',
-            borderRadius: 'var(--radius-2)',
-            backgroundColor: menuOpen
-              ? 'var(--color-bg-subtle)'
-              : 'transparent',
-            color: 'var(--color-text-secondary)',
+            borderRadius: 'var(--radius-sm)',
+            backgroundColor: menuOpen ? 'var(--surface-2)' : 'transparent',
+            color: 'var(--ink-3)',
             cursor: 'pointer',
             opacity: hovered || menuOpen ? 1 : 0,
-            transition: `opacity var(--duration-fast) var(--easing-standard),
-                         background-color var(--duration-fast) var(--easing-standard)`,
+            transition: `opacity var(--dur-fast) var(--ease-out), background-color var(--dur-fast) var(--ease-out)`,
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = 'var(--color-bg-subtle)'
-            e.currentTarget.style.color = 'var(--color-text-primary)'
+            e.currentTarget.style.backgroundColor = 'var(--surface-2)'
+            e.currentTarget.style.color = 'var(--ink)'
           }}
           onMouseLeave={(e) => {
             if (!menuOpen) {
               e.currentTarget.style.backgroundColor = 'transparent'
-              e.currentTarget.style.color = 'var(--color-text-secondary)'
+              e.currentTarget.style.color = 'var(--ink-3)'
             }
           }}
         >
-          <MoreHorizontal size={16} />
+          <MoreHorizontal size={15} strokeWidth={1.5} />
         </button>
 
-        {/* Dropdown */}
         {menuOpen && (
           <div
             style={{
               position: 'absolute',
-              bottom: '32px',
+              top: '32px',
               right: 0,
-              backgroundColor: 'var(--color-bg-surface-raised)',
-              border: '1px solid var(--color-border-default)',
-              borderRadius: 'var(--radius-3)',
-              boxShadow: 'var(--shadow-3)',
-              minWidth: '160px',
+              backgroundColor: 'var(--surface-1)',
+              border: '1px solid var(--rule)',
+              borderRadius: 'var(--radius-md)',
+              boxShadow: 'var(--shadow-md)',
+              minWidth: '168px',
               overflow: 'hidden',
               zIndex: 10,
+              animation: 'slideDown 120ms var(--ease-out) both',
             }}
           >
             <button
-              onClick={() => {
-                setMenuOpen(false)
-                onArchiveToggle(project.id)
-              }}
+              onClick={() => { setMenuOpen(false); onArchiveToggle(project.id) }}
               style={{
-                display: 'block',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
                 width: '100%',
-                padding: '10px 14px',
-                fontSize: '13px',
+                padding: '9px 12px',
+                fontSize: 'var(--text-sm)',
                 fontWeight: 500,
-                color: 'var(--color-text-primary)',
+                color: 'var(--ink-2)',
                 textAlign: 'left',
                 backgroundColor: 'transparent',
                 border: 'none',
                 cursor: 'pointer',
-                transition: `background-color var(--duration-fast) var(--easing-standard)`,
+                transition: `background-color var(--dur-fast) var(--ease-out)`,
+                fontFamily: 'var(--font-sans)',
               }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'var(--color-bg-subtle)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent'
-              }}
+              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--surface-2)' }}
+              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}
             >
-              {isArchived ? 'Unarchive Project' : 'Archive Project'}
+              {isArchived
+                ? <><ArchiveRestore size={14} strokeWidth={1.5} /> Unarchive project</>
+                : <><Archive size={14} strokeWidth={1.5} /> Archive project</>
+              }
             </button>
           </div>
         )}

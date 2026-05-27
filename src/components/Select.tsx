@@ -1,4 +1,3 @@
-// Styled native select — section 5.3
 import { ChevronDown } from 'lucide-react'
 
 interface SelectOption {
@@ -25,29 +24,29 @@ export function Select({ value, onChange, options, placeholder, error, disabled 
         style={{
           width: '100%',
           height: '36px',
-          padding: '0 36px 0 12px',
-          fontSize: '13px',
-          color: value ? 'var(--color-text-primary)' : 'var(--color-text-placeholder)',
-          backgroundColor: disabled ? 'var(--color-bg-subtle)' : 'var(--color-bg-surface)',
-          border: `1px solid ${error ? 'var(--color-negative)' : 'var(--color-border-default)'}`,
-          borderRadius: 'var(--radius-2)',
+          padding: '0 32px 0 12px',
+          fontSize: 'var(--text-sm)',
+          color: value ? 'var(--ink)' : 'var(--ink-4)',
+          backgroundColor: disabled ? 'var(--surface-2)' : 'var(--surface-1)',
+          border: `1px solid ${error ? 'var(--danger)' : 'var(--rule-strong)'}`,
+          borderRadius: 'var(--radius-sm)',
           outline: 'none',
-          fontFamily: 'inherit',
+          fontFamily: 'var(--font-sans)',
           cursor: disabled ? 'not-allowed' : 'pointer',
-          opacity: disabled ? 0.6 : 1,
+          opacity: disabled ? 0.5 : 1,
           appearance: 'none',
           WebkitAppearance: 'none',
           boxSizing: 'border-box',
-          transition: `border-color var(--duration-fast) var(--easing-standard)`,
+          transition: `border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out)`,
         }}
         onFocus={(e) => {
           if (!error) {
-            e.currentTarget.style.borderColor = 'var(--color-border-focus)'
-            e.currentTarget.style.boxShadow = '0 0 0 3px rgba(45,70,185,0.12)'
+            e.currentTarget.style.borderColor = 'var(--ink-3)'
+            e.currentTarget.style.boxShadow = '0 1px 0 0 rgba(27,24,19,0.04), 0 2px 6px -1px rgba(27,24,19,0.10)'
           }
         }}
         onBlur={(e) => {
-          e.currentTarget.style.borderColor = error ? 'var(--color-negative)' : 'var(--color-border-default)'
+          e.currentTarget.style.borderColor = error ? 'var(--danger)' : 'var(--rule-strong)'
           e.currentTarget.style.boxShadow = 'none'
         }}
       >
@@ -63,13 +62,14 @@ export function Select({ value, onChange, options, placeholder, error, disabled 
         ))}
       </select>
       <ChevronDown
-        size={14}
+        size={13}
+        strokeWidth={1.5}
         style={{
           position: 'absolute',
           right: '10px',
           top: '50%',
           transform: 'translateY(-50%)',
-          color: 'var(--color-text-secondary)',
+          color: 'var(--ink-3)',
           pointerEvents: 'none',
         }}
       />
