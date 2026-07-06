@@ -35,8 +35,11 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
 
-      - name: Build & deploy
-        run: npm run deploy
+      - name: Build
+        run: npm run build
+
+      - name: Deploy to gh-pages
+        run: npx gh-pages -d dist -r "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" -u "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
         env:
-          # gh-pages uses this token to push the dist branch
+          # Token-embedded remote URL lets gh-pages authenticate the push
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
