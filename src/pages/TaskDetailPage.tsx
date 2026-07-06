@@ -523,9 +523,11 @@ export function TaskDetailPage() {
     () => issueFields.filter((f) => !resolvedIds.has(f.id)),
     [issueFields, resolvedIds],
   )
+  // Manual entries = fields a reviewer has acted on, either by verifying an
+  // issue or by manually overriding the extracted value.
   const manualFields = useMemo(
-    () => allFields.filter((f) => overriddenValues.has(f.id)),
-    [allFields, overriddenValues],
+    () => allFields.filter((f) => overriddenValues.has(f.id) || resolvedIds.has(f.id)),
+    [allFields, overriddenValues, resolvedIds],
   )
 
   const filteredFields = useMemo(() => {
