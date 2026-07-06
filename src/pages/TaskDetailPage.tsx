@@ -3,20 +3,23 @@ import { useParams, useNavigate, Link } from 'react-router-dom'
 import {
   ArrowLeft, BookOpen, CheckCircle, ChevronLeft, ChevronRight,
   FileText, ZoomIn, ZoomOut, Search, X, Check,
-  AlertTriangle, Info, Eye,
+  AlertTriangle, Info, Eye, MoreHorizontal,
 } from 'lucide-react'
 import { TASKS, CURRENT_USER } from '../data/mockData'
 import { CLAUSE_SECTIONS, TASK_DOCUMENTS, INITIAL_AUDIT, type ClauseField, type AuditEntry, type Citation } from '../data/task1Detail'
 import { PSA_DOCUMENT } from '../data/documentText'
 import { TabBar } from '../components/TabBar'
 import { Accordion } from '../components/Accordion'
-import { ProgressBar } from '../components/ProgressBar'
 import { Badge, statusToBadgeVariant } from '../components/Badge'
 import { Button } from '../components/Button'
 import { ActivityLog } from '../components/ActivityLog'
 import { CommentThread, type Comment } from '../components/CommentThread'
 import { ConfirmModal } from '../components/Modal'
+import { BottomSheet } from '../components/BottomSheet'
+import { Select } from '../components/Select'
 import { useToast } from '../contexts/ToastContext'
+import { useIsMobile } from '../hooks/useIsMobile'
+import { useTopBar } from '../contexts/TopBarContext'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -51,6 +54,7 @@ interface ClauseCardProps {
   field: ClauseField
   currentValue: string
   isResolved: boolean
+  isManual: boolean
   resolvedInfo?: { by: string; at: string }
   isVerifying: boolean
   isEditing: boolean
@@ -69,7 +73,7 @@ interface ClauseCardProps {
 }
 
 function ClauseCard({
-  field, currentValue, isResolved, resolvedInfo,
+  field, currentValue, isResolved, isManual, resolvedInfo,
   isVerifying, isEditing, isReasoningOpen, isSelected, isFlashing,
   cardRef,
   onStartVerify, onCancelVerify, onConfirmVerify,
@@ -95,11 +99,14 @@ function ClauseCard({
     if (isEditing) setEditValue(currentValue)
   }, [isEditing, currentValue])
 
-  const leftBorderColor = isResolved
+  // Status accent lives on the left edge as an inset shadow so the card keeps a
+  // full 1px border on all four sides (a transparent border-left reads as a
+  // "cut off" left edge).
+  const accentColor = isResolved
     ? 'var(--color-positive)'
     : isFlashing
       ? 'var(--color-action-primary)'
-      : 'transparent'
+      : null
 
   return (
     <div
@@ -107,11 +114,12 @@ function ClauseCard({
       style={{
         backgroundColor: isSelected ? 'rgba(45,70,185,0.03)' : 'var(--color-bg-surface)',
         border: '1px solid var(--color-border-default)',
-        borderLeft: `3px solid ${leftBorderColor}`,
+        boxShadow: accentColor ? `inset 3px 0 0 0 ${accentColor}` : 'none',
         borderRadius: 'var(--radius-3)',
         padding: '14px 16px',
         marginBottom: '8px',
         transition: `border-color var(--duration-fast) var(--easing-standard),
+                     box-shadow var(--duration-fast) var(--easing-standard),
                      background-color var(--duration-fast) var(--easing-standard)`,
       }}
     >
@@ -126,7 +134,7 @@ function ClauseCard({
               {field.sectionRef}
             </span>
           )}
-          {field.issueLevel === null ? (
+          {field.issueLevel === null || isManual ? (
             <Badge variant="complete" label="No Issues" dot={false} />
           ) : field.issueLevel === 'critical' ? (
             <Badge variant="critical" label="Critical" dot />
@@ -344,11 +352,99 @@ function ClauseCard({
   )
 }
 
+// ─── Mobile top-bar actions (Approve + More dropdown) ───────────────────────────
+
+interface MobileTaskActionsProps {
+  task: { project: string; client: string; dueDate: string; status: string }
+  taskApproved: boolean
+  canApprove: boolean
+  approvePulse: boolean
+  onApprove: () => void
+}
+
+function MobileTaskActions({ task, taskApproved, canApprove, approvePulse, onApprove }: MobileTaskActionsProps) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!open) return
+    const h = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false) }
+    document.addEventListener('mousedown', h)
+    return () => document.removeEventListener('mousedown', h)
+  }, [open])
+
+  return (
+    <>
+      <Button
+        variant="primary"
+        size="sm"
+        disabled={!canApprove}
+        onClick={onApprove}
+        style={approvePulse ? { animation: 'approvePulse 0.7s var(--easing-standard) both' } : undefined}
+      >
+        {taskApproved ? '✓ Approved' : 'Approve'}
+      </Button>
+
+      <div ref={ref} style={{ position: 'relative' }}>
+        <button
+          aria-label="More"
+          onClick={() => setOpen((o) => !o)}
+          style={{
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            width: '32px', height: '28px', borderRadius: 'var(--radius-sm)',
+            border: '1px solid var(--rule-strong)',
+            backgroundColor: open ? 'var(--surface-2)' : 'var(--surface-1)',
+            color: 'var(--ink-2)', cursor: 'pointer', flexShrink: 0,
+          }}
+        >
+          <MoreHorizontal size={16} />
+        </button>
+
+        {open && (
+          <div
+            style={{
+              position: 'absolute', top: 'calc(100% + 6px)', right: 0,
+              backgroundColor: 'var(--surface-1)', border: '1px solid var(--rule)',
+              borderRadius: 'var(--radius-md)', boxShadow: 'var(--shadow-lg)',
+              minWidth: '230px', zIndex: 60, padding: '12px 14px',
+              display: 'flex', flexDirection: 'column', gap: '10px',
+              animation: 'slideDown 120ms var(--ease-out) both',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+              <span style={{ fontSize: 'var(--text-2xs)', textTransform: 'uppercase', letterSpacing: 'var(--track-wide)', color: 'var(--ink-3)', fontWeight: 600 }}>
+                Status
+              </span>
+              <Badge
+                variant={taskApproved ? 'complete' : statusToBadgeVariant(task.status)}
+                label={taskApproved ? 'Complete' : task.status}
+                dot
+              />
+            </div>
+            <div style={{ height: '1px', backgroundColor: 'var(--rule)' }} />
+            {([
+              ['Project', task.project],
+              ['Client', task.client],
+              ['Due', new Date(task.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })],
+            ] as [string, string][]).map(([label, value]) => (
+              <div key={label} style={{ fontSize: 'var(--text-xs)' }}>
+                <span style={{ color: 'var(--ink-4)' }}>{label}</span>
+                <div style={{ marginTop: '2px', color: 'var(--ink-2)' }}>{value}</div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </>
+  )
+}
+
 // ─── Main page ────────────────────────────────────────────────────────────────
 
 export function TaskDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const isMobile = useIsMobile()
   const { toast } = useToast()
 
   const task = TASKS.find((t) => t.id === id)
@@ -393,6 +489,8 @@ export function TaskDetailPage() {
   const [selectedClauseId, setSelectedClauseId] = useState<string | null>(null)
   const [activeDocId, setActiveDocId] = useState('doc-1')
   const [docViewMode, setDocViewMode] = useState<'citations' | 'full'>('citations')
+  // Mobile: whether the document/citations pull-up drawer is expanded.
+  const [docSheetOpen, setDocSheetOpen] = useState(false)
   const [scrollToExcerpt, setScrollToExcerpt] = useState<string | null>(null)
   const [zoomLevel, setZoomLevel] = useState(100)
   const [docSearchQuery, setDocSearchQuery] = useState('')
@@ -436,12 +534,7 @@ export function TaskDetailPage() {
     return allFields
   }, [filterMode, allFields, unresolvedIssueFields, manualFields])
 
-  const resolvedIssueCount = issueFields.length - unresolvedIssueFields.length
-  const issueProgressPct =
-    issueFields.length > 0 ? (resolvedIssueCount / issueFields.length) * 100 : 100
-
   const canApprove = unresolvedIssueFields.length === 0 && !taskApproved
-  const allIssuesResolved = unresolvedIssueFields.length === 0 && issueFields.length > 0
 
   // Pulse the Approve button once when all issues first become resolved
   const [approvePulse, setApprovePulse] = useState(false)
@@ -453,6 +546,26 @@ export function TaskDetailPage() {
     }
     prevCanApprove.current = canApprove
   }, [canApprove])
+
+  // Inject the task name + Approve/More actions into the mobile top bar.
+  const showMobileBar = isMobile && !!task && id === 'task-1'
+  useTopBar(
+    showMobileBar
+      ? {
+          title: task!.name,
+          right: (
+            <MobileTaskActions
+              task={task!}
+              taskApproved={taskApproved}
+              canApprove={canApprove}
+              approvePulse={approvePulse}
+              onApprove={() => setShowApproveModal(true)}
+            />
+          ),
+        }
+      : {},
+    [showMobileBar, task, taskApproved, canApprove, approvePulse],
+  )
 
   // Active citations for right panel
   const activeCitations = useMemo(() => {
@@ -545,11 +658,13 @@ export function TaskDetailPage() {
     setDocViewMode('citations')
     const field = allFields.find((f) => f.id === fieldId)
     if (field?.citations[0]) setActiveDocId(field.citations[0].documentId)
+    setDocSheetOpen(true) // reveal the document drawer on mobile
   }, [allFields])
 
   const handleViewInDocument = useCallback((excerpt: string) => {
     setDocViewMode('full')
     setScrollToExcerpt(excerpt)
+    setDocSheetOpen(true) // reveal the document drawer on mobile
   }, [])
 
   const handleSaveCitation = useCallback(() => {
@@ -703,12 +818,62 @@ export function TaskDetailPage() {
   // ── Layout ──────────────────────────────────────────────────────────────────
   // Escape AppShell's 32px/40px padding and go full-bleed for the split panel
 
+  // Prev / next field-navigation buttons (shared by desktop + mobile layouts)
+  const fieldNavButtons = (
+    <>
+      <button
+        onClick={() => navigateToField(Math.max(0, currentFieldIdx - 1))}
+        disabled={currentFieldIdx === 0}
+        aria-label="Previous field"
+        style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+          width: '26px', height: '26px', borderRadius: 'var(--radius-2)',
+          border: '1px solid var(--color-border-default)',
+          backgroundColor: 'transparent', cursor: currentFieldIdx === 0 ? 'not-allowed' : 'pointer',
+          color: currentFieldIdx === 0 ? 'var(--color-text-disabled)' : 'var(--color-text-secondary)',
+        }}
+        onMouseEnter={(e) => { if (currentFieldIdx > 0) e.currentTarget.style.backgroundColor = 'var(--color-bg-subtle)' }}
+        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}
+      >
+        <ChevronLeft size={14} />
+      </button>
+      <button
+        onClick={() => navigateToField(Math.min(filteredFields.length - 1, currentFieldIdx + 1))}
+        disabled={currentFieldIdx === filteredFields.length - 1}
+        aria-label="Next field"
+        style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+          width: '26px', height: '26px', borderRadius: 'var(--radius-2)',
+          border: '1px solid var(--color-border-default)',
+          backgroundColor: 'transparent',
+          cursor: currentFieldIdx === filteredFields.length - 1 ? 'not-allowed' : 'pointer',
+          color: currentFieldIdx === filteredFields.length - 1 ? 'var(--color-text-disabled)' : 'var(--color-text-secondary)',
+        }}
+        onMouseEnter={(e) => { if (currentFieldIdx < filteredFields.length - 1) e.currentTarget.style.backgroundColor = 'var(--color-bg-subtle)' }}
+        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}
+      >
+        <ChevronRight size={14} />
+      </button>
+    </>
+  )
+
+  const fieldCountLabel = `${filterMode === 'issues' ? 'Issue' : filterMode === 'manual' ? 'Entry' : 'Field'} ${currentFieldIdx + 1} of ${filteredFields.length}`
+
   return (
-    <div style={{ margin: '-32px -40px', display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
+    <div style={{
+      margin: isMobile ? '-16px' : '-32px -40px',
+      display: 'flex',
+      flexDirection: 'column',
+      height: isMobile ? 'auto' : '100dvh',
+      minHeight: isMobile ? 'calc(100dvh - var(--header-height))' : undefined,
+      overflow: isMobile ? 'visible' : 'hidden',
+    }}>
 
       {/* ── Top section ─────────────────────────────────────────────────────── */}
-      <div style={{ padding: '20px 40px 0', flexShrink: 0, backgroundColor: 'var(--color-bg-surface)' }}>
-        {/* Back nav */}
+      <div style={{ padding: isMobile ? '0 16px' : '20px 40px 0', flexShrink: 0, backgroundColor: 'var(--color-bg-surface)' }}>
+        {/* Back nav + title row — desktop only (mobile uses the app top bar) */}
+        {!isMobile && (
+        <>
         <button
           onClick={() => navigate('/tasks')}
           style={{
@@ -724,12 +889,18 @@ export function TaskDetailPage() {
         </button>
 
         {/* Title row */}
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '16px', paddingBottom: '16px' }}>
+        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: '16px', paddingBottom: '16px' }}>
           <div>
             <h1 style={{ margin: 0, fontSize: '22px', fontWeight: 600, color: 'var(--color-text-primary)', lineHeight: '30px', letterSpacing: '-0.02em' }}>
               {task.name}
             </h1>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px', flexWrap: 'wrap' }}>
+              <Badge
+                variant={taskApproved ? 'complete' : statusToBadgeVariant(task.status)}
+                label={taskApproved ? 'Complete' : task.status}
+                dot
+              />
+              <span style={{ color: 'var(--color-border-strong)' }}>·</span>
               <span style={{ fontSize: '13px', color: 'var(--color-text-secondary)' }}>{task.project}</span>
               <span style={{ color: 'var(--color-border-strong)' }}>·</span>
               <span style={{ fontSize: '13px', color: 'var(--color-text-secondary)' }}>{task.client}</span>
@@ -740,11 +911,6 @@ export function TaskDetailPage() {
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
-            <Badge
-              variant={taskApproved ? 'complete' : statusToBadgeVariant(task.status)}
-              label={taskApproved ? 'Complete' : task.status}
-              dot
-            />
             <Button
               variant="primary"
               disabled={!canApprove}
@@ -755,6 +921,8 @@ export function TaskDetailPage() {
             </Button>
           </div>
         </div>
+        </>
+        )}
 
         {/* Tab bar */}
         <TabBar
@@ -766,112 +934,112 @@ export function TaskDetailPage() {
           ]}
           active={activeTab}
           onChange={setActiveTab}
+          bleedX={isMobile ? 16 : 40}
         />
       </div>
+
+      {/* ── Filter row — full-width, desktop review tab (pills + field navigator) ── */}
+      {!isMobile && activeTab === 'review' && (
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            padding: '10px 40px',
+            borderBottom: '1px solid var(--color-border-default)',
+            backgroundColor: 'var(--color-bg-surface)',
+            flexShrink: 0,
+          }}
+        >
+          {/* Filter pills */}
+          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+            {(
+              [
+                { mode: 'all' as FilterMode,    label: `${allFields.length} Extracted Fields` },
+                { mode: 'issues' as FilterMode,  label: `${unresolvedIssueFields.length} Issues` },
+                { mode: 'manual' as FilterMode,  label: `${manualFields.length} Manual Entries` },
+              ] as { mode: FilterMode; label: string }[]
+            ).map(({ mode, label }) => (
+              <button
+                key={mode}
+                onClick={() => { setFilterMode(mode); setCurrentFieldIdx(0) }}
+                style={{
+                  padding: '4px 12px',
+                  borderRadius: 'var(--radius-pill)',
+                  fontSize: '12px',
+                  fontWeight: 500,
+                  border: 'none',
+                  cursor: 'pointer',
+                  backgroundColor: filterMode === mode ? 'var(--color-action-primary)' : 'var(--color-bg-subtle)',
+                  color: filterMode === mode ? 'var(--color-action-primary-text)' : 'var(--color-text-secondary)',
+                  transition: `background-color var(--duration-fast) var(--easing-standard), color var(--duration-fast) var(--easing-standard)`,
+                }}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
+          {/* Field navigator — pushed to the right */}
+          {filteredFields.length > 0 && (
+            <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+              <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)', whiteSpace: 'nowrap' }}>
+                {fieldCountLabel}
+              </span>
+              {fieldNavButtons}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* ── Tab content ─────────────────────────────────────────────────────── */}
 
       {/* Review: split panel */}
       {activeTab === 'review' && (
-        <div ref={containerRef} style={{ flex: 1, display: 'flex', overflow: 'hidden', backgroundColor: 'var(--color-bg-app)' }}>
+        <div ref={containerRef} style={{ flex: isMobile ? 'none' : 1, display: 'flex', overflow: isMobile ? 'visible' : 'hidden', backgroundColor: 'var(--color-bg-app)', paddingBottom: isMobile ? '64px' : 0 }}>
 
-          {/* ── Left panel ──────────────────────────────────────────────────── */}
+          {/* ── Review panel (fields) — full-width main view (both mobile & desktop) ── */}
           <div
             style={{
-              width: `${leftPct}%`,
-              minWidth: '320px',
+              width: isMobile ? '100%' : `${leftPct}%`,
+              minWidth: isMobile ? 0 : '320px',
               display: 'flex',
               flexDirection: 'column',
               backgroundColor: 'var(--color-bg-surface)',
-              borderRight: '1px solid var(--color-border-default)',
-              overflow: 'hidden',
+              borderRight: isMobile ? 'none' : '1px solid var(--color-border-default)',
+              overflow: isMobile ? 'visible' : 'hidden',
             }}
           >
-            {/* Filter bar */}
-            <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--color-border-default)', flexShrink: 0 }}>
-              {/* Progress */}
-              <div style={{ marginBottom: '10px' }}>
-                <p style={{ margin: '0 0 6px', fontSize: '12px', color: allIssuesResolved ? 'var(--color-positive)' : 'var(--color-text-secondary)', fontWeight: allIssuesResolved ? 600 : 400 }}>
-                  {allIssuesResolved
-                    ? 'All issues resolved. Ready to approve.'
-                    : `${unresolvedIssueFields.length} of ${issueFields.length} issues remaining`}
-                </p>
-                <ProgressBar value={issueProgressPct} />
-              </div>
-
-              {/* Filter pills */}
-              <div style={{ display: 'flex', gap: '6px', marginBottom: '10px', flexWrap: 'wrap' }}>
-                {(
-                  [
-                    { mode: 'all' as FilterMode,    label: `${allFields.length} Extracted Fields` },
-                    { mode: 'issues' as FilterMode,  label: `${unresolvedIssueFields.length} Issues` },
-                    { mode: 'manual' as FilterMode,  label: `${manualFields.length} Manual Entries` },
-                  ] as { mode: FilterMode; label: string }[]
-                ).map(({ mode, label }) => (
-                  <button
-                    key={mode}
-                    onClick={() => { setFilterMode(mode); setCurrentFieldIdx(0) }}
-                    style={{
-                      padding: '4px 12px',
-                      borderRadius: 'var(--radius-pill)',
-                      fontSize: '12px',
-                      fontWeight: 500,
-                      border: 'none',
-                      cursor: 'pointer',
-                      backgroundColor: filterMode === mode ? 'var(--color-action-primary)' : 'var(--color-bg-subtle)',
-                      color: filterMode === mode ? 'var(--color-action-primary-text)' : 'var(--color-text-secondary)',
-                      transition: `background-color var(--duration-fast) var(--easing-standard), color var(--duration-fast) var(--easing-standard)`,
-                    }}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
-
-              {/* Field navigator */}
-              {filteredFields.length > 0 && (
+            {/* Filter bar (mobile only — desktop uses the full-width row above the panels) */}
+            {isMobile && (
+              <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--color-border-default)', flexShrink: 0 }}>
+                {/* Mobile: filter dropdown + field nav on one line */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)', flex: 1 }}>
-                    {filterMode === 'issues' ? 'Issue' : filterMode === 'manual' ? 'Entry' : 'Field'}{' '}
-                    {currentFieldIdx + 1} of {filteredFields.length}
-                  </span>
-                  <button
-                    onClick={() => navigateToField(Math.max(0, currentFieldIdx - 1))}
-                    disabled={currentFieldIdx === 0}
-                    style={{
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      width: '26px', height: '26px', borderRadius: 'var(--radius-2)',
-                      border: '1px solid var(--color-border-default)',
-                      backgroundColor: 'transparent', cursor: currentFieldIdx === 0 ? 'not-allowed' : 'pointer',
-                      color: currentFieldIdx === 0 ? 'var(--color-text-disabled)' : 'var(--color-text-secondary)',
-                    }}
-                    onMouseEnter={(e) => { if (currentFieldIdx > 0) e.currentTarget.style.backgroundColor = 'var(--color-bg-subtle)' }}
-                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}
-                  >
-                    <ChevronLeft size={14} />
-                  </button>
-                  <button
-                    onClick={() => navigateToField(Math.min(filteredFields.length - 1, currentFieldIdx + 1))}
-                    disabled={currentFieldIdx === filteredFields.length - 1}
-                    style={{
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      width: '26px', height: '26px', borderRadius: 'var(--radius-2)',
-                      border: '1px solid var(--color-border-default)',
-                      backgroundColor: 'transparent',
-                      cursor: currentFieldIdx === filteredFields.length - 1 ? 'not-allowed' : 'pointer',
-                      color: currentFieldIdx === filteredFields.length - 1 ? 'var(--color-text-disabled)' : 'var(--color-text-secondary)',
-                    }}
-                    onMouseEnter={(e) => { if (currentFieldIdx < filteredFields.length - 1) e.currentTarget.style.backgroundColor = 'var(--color-bg-subtle)' }}
-                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}
-                  >
-                    <ChevronRight size={14} />
-                  </button>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <Select
+                      value={filterMode}
+                      onChange={(v) => { setFilterMode(v as FilterMode); setCurrentFieldIdx(0) }}
+                      options={[
+                        { value: 'all',    label: `${allFields.length} Extracted Fields` },
+                        { value: 'issues', label: `${unresolvedIssueFields.length} Issues` },
+                        { value: 'manual', label: `${manualFields.length} Manual Entries` },
+                      ]}
+                    />
+                  </div>
+                  {filteredFields.length > 0 && (
+                    <>
+                      <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                        {fieldCountLabel}
+                      </span>
+                      {fieldNavButtons}
+                    </>
+                  )}
                 </div>
-              )}
-            </div>
+              </div>
+            )}
 
             {/* Clause list */}
-            <div style={{ flex: 1, overflowY: 'auto', padding: '8px 16px 24px' }}>
+            <div style={{ flex: isMobile ? 'none' : 1, overflowY: isMobile ? 'visible' : 'auto', padding: '8px 16px 24px' }}>
               {CLAUSE_SECTIONS.map((section) => {
                 const sectionFields = section.fields.filter((f) =>
                   filteredFields.some((ff) => ff.id === f.id),
@@ -899,6 +1067,7 @@ export function TaskDetailPage() {
                           field={field}
                           currentValue={overriddenValues.get(field.id) ?? field.value}
                           isResolved={resolvedIds.has(field.id)}
+                          isManual={overriddenValues.has(field.id)}
                           resolvedInfo={resolvedInfoMap.get(field.id)}
                           isVerifying={verifyingId === field.id}
                           isEditing={editingId === field.id}
@@ -938,7 +1107,8 @@ export function TaskDetailPage() {
             </div>
           </div>
 
-          {/* ── Resize handle ────────────────────────────────────────────────── */}
+          {/* ── Resize handle (desktop only) ──────────────────────────────────── */}
+          {!isMobile && (
           <div
             onMouseDown={handleSplitMouseDown}
             onDoubleClick={() => setLeftPct(40)}
@@ -967,12 +1137,17 @@ export function TaskDetailPage() {
               }}
             />
           </div>
+          )}
 
-          {/* ── Right panel ──────────────────────────────────────────────────── */}
+          {/* ── Document / citations — inline on desktop, pull-up sheet on mobile ── */}
+          {(() => {
+          const documentPanel = (
           <div
             style={{
-              flex: 1,
-              minWidth: '360px',
+              flex: isMobile ? undefined : 1,
+              width: isMobile ? '100%' : undefined,
+              height: isMobile ? '100%' : undefined,
+              minWidth: isMobile ? 0 : '360px',
               display: 'flex',
               flexDirection: 'column',
               backgroundColor: 'var(--color-bg-surface)',
@@ -982,12 +1157,14 @@ export function TaskDetailPage() {
           >
             {/* Document switcher tabs */}
             <div
+              className="cm-scroll-x"
               style={{
                 height: '44px',
                 borderBottom: '1px solid var(--color-border-default)',
                 display: 'flex',
                 alignItems: 'flex-end',
                 overflowX: 'auto',
+                overflowY: 'hidden',
                 flexShrink: 0,
               }}
             >
@@ -1327,15 +1504,66 @@ export function TaskDetailPage() {
               )}
             </div>
           </div>
+          )
+          return isMobile
+            ? (
+              <BottomSheet
+                peekLabel="Document & citations"
+                expanded={docSheetOpen}
+                onExpandedChange={setDocSheetOpen}
+              >
+                {documentPanel}
+              </BottomSheet>
+            )
+            : documentPanel
+          })()}
         </div>
       )}
 
       {/* Documents tab */}
       {activeTab === 'documents' && (
-        <div style={{ flex: 1, overflowY: 'auto', padding: '32px 40px' }}>
+        <div style={{ flex: 1, overflowY: 'auto', padding: isMobile ? '16px' : '32px 40px' }}>
           <h2 style={{ margin: '0 0 16px', fontSize: '16px', fontWeight: 600, color: 'var(--color-text-primary)' }}>
             Documents
           </h2>
+          {isMobile ? (
+            /* Mobile: each document as a stacked card instead of a wide table. */
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {TASK_DOCUMENTS.map((doc) => (
+                <div
+                  key={doc.id}
+                  style={{
+                    backgroundColor: 'var(--color-bg-surface)',
+                    border: '1px solid var(--color-border-default)',
+                    borderRadius: 'var(--radius-3)',
+                    padding: '14px 16px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '10px',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
+                      <FileText size={16} style={{ color: 'var(--color-text-secondary)', flexShrink: 0 }} />
+                      <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {doc.name}
+                      </span>
+                    </div>
+                    <Badge
+                      variant={doc.type === 'Main' ? 'doc-main' : 'doc-supporting'}
+                      label={doc.type}
+                      dot={false}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: 'var(--color-text-secondary)' }}>
+                    <span>{doc.size}</span>
+                    <span style={{ color: 'var(--color-border-strong)' }}>·</span>
+                    <span>{doc.uploaded}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
           <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0 }}>
             <thead>
               <tr>
@@ -1386,6 +1614,7 @@ export function TaskDetailPage() {
               ))}
             </tbody>
           </table>
+          )}
         </div>
       )}
 

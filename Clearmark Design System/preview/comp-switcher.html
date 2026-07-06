@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8">
+<title>Segmented Switcher</title>
+<link rel="stylesheet" href="_card.css">
+<link rel="stylesheet" href="../components.css">
+</head><body>
+<div class="card">
+  <div class="stack-4">
+    <div class="row" style="align-items:center;gap:16px;">
+      <div class="switcher">
+        <button class="switcher__seg switcher__seg--active">My documents</button>
+        <button class="switcher__seg">All documents</button>
+      </div>
+      <div class="switcher">
+        <button class="switcher__seg switcher__seg--active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+          Table
+        </button>
+        <button class="switcher__seg">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          Grid
+        </button>
+      </div>
+    </div>
+
+    <div class="row" style="align-items:center;gap:16px;">
+      <div class="switcher">
+        <button class="switcher__seg switcher__seg--active">Active <span class="switcher__count">12</span></button>
+        <button class="switcher__seg">Archived <span class="switcher__count">147</span></button>
+        <button class="switcher__seg">All <span class="switcher__count">1,284</span></button>
+      </div>
+    </div>
+
+    <div class="row" style="align-items:center;gap:16px;">
+      <div class="switcher switcher-sm">
+        <button class="switcher__seg switcher__seg--active">Day</button>
+        <button class="switcher__seg">Week</button>
+        <button class="switcher__seg">Month</button>
+        <button class="switcher__seg">Year</button>
+      </div>
+      <div class="switcher switcher-lg">
+        <button class="switcher__seg switcher__seg--active">Document</button>
+        <button class="switcher__seg">Redlines</button>
+        <button class="switcher__seg">Audit trail</button>
+      </div>
+    </div>
+  </div>
+</div>
+</body></html>

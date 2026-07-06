@@ -1,3 +1,5 @@
+import { useIsMobile } from '../hooks/useIsMobile'
+
 interface InputProps {
   value: string
   onChange: (val: string) => void
@@ -8,6 +10,7 @@ interface InputProps {
 }
 
 export function Input({ value, onChange, placeholder, error, disabled, type = 'text' }: InputProps) {
+  const isMobile = useIsMobile()
   return (
     <input
       type={type}
@@ -17,14 +20,17 @@ export function Input({ value, onChange, placeholder, error, disabled, type = 't
       disabled={disabled}
       style={{
         width: '100%',
-        height: '36px',
+        height: isMobile ? '40px' : '36px',
         padding: '0 12px',
-        fontSize: 'var(--text-sm)',
+        // 16px on mobile prevents iOS auto-zoom on focus (a device-default behavior).
+        fontSize: isMobile ? '16px' : 'var(--text-sm)',
         color: 'var(--ink)',
         backgroundColor: disabled ? 'var(--surface-2)' : 'var(--surface-1)',
         border: `1px solid ${error ? 'var(--danger)' : 'var(--rule-strong)'}`,
         borderRadius: 'var(--radius-sm)',
         outline: 'none',
+        appearance: 'none',
+        WebkitAppearance: 'none',
         fontFamily: 'var(--font-sans)',
         cursor: disabled ? 'not-allowed' : 'text',
         opacity: disabled ? 0.5 : 1,

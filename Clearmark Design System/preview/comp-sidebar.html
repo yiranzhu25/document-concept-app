@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8">
+<title>Sidebar Navigation</title>
+<link rel="stylesheet" href="_card.css">
+<link rel="stylesheet" href="../components.css">
+<style>
+.sb { background: var(--cream); border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; }
+.sb-head { padding: 14px 16px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--rule); }
+.sb-section { padding: 12px 8px 8px; }
+.sb-cap { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-4); padding: 4px 12px; font-weight: 600; }
+.sb-item { display: flex; align-items: center; gap: 10px; padding: 7px 12px; border-radius: 6px; font-size: 13px; color: var(--ink-2); cursor: pointer; }
+.sb-item svg { width: 16px; height: 16px; stroke-width: 1.5; color: var(--ink-3); }
+.sb-item:hover { background: var(--surface-2); color: var(--ink); }
+.sb-item.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.sb-item.active svg { color: var(--accent); }
+.sb-item .count { margin-left: auto; font-size: 11px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.glyph { width: 22px; height: 22px; color: var(--ink); }
+.glyph path { stroke: currentColor; }
+</style>
+</head><body>
+<div class="card tight">
+  <div class="grid-2" style="gap:14px;align-items:start;">
+    <div class="sb">
+      <div class="sb-head">
+        <svg class="glyph" viewBox="0 0 64 64" fill="none"><path d="M42.6668 21.3333L5.3335 58.6667M46.6668 40H24.0002M53.9735 32.64C56.9757 29.6377 58.6624 25.5658 58.6624 21.32C58.6624 17.0742 56.9757 13.0022 53.9735 9.99999C50.9712 6.99774 46.8993 5.3111 42.6535 5.3111C38.4077 5.3111 34.3357 6.99774 31.3335 9.99999L13.3335 28V50.6667H36.0002L53.9735 32.64Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div style="font-weight:500;font-size:15px;letter-spacing:-0.01em;">Clearmark</div>
+        <svg style="margin-left:auto;width:14px;height:14px;color:var(--ink-3);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 6l-6 6 6 6"/></svg>
+      </div>
+      <div class="sb-section">
+        <div class="sb-cap">Workspace</div>
+        <div class="sb-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 12l9-8 9 8M5 10v10h14V10"/></svg>Overview</div>
+        <div class="sb-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 3H6v18h12V7l-4-4z"/><path d="M14 3v4h4"/></svg>Documents<span class="count">1,284</span></div>
+        <div class="sb-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>Tasks<span class="count">23</span></div>
+        <div class="sb-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 11.5a8.38 8.38 0 0 1-15.9 3.8L3 21l5.7-2.1A8.5 8.5 0 1 0 21 11.5z"/></svg>Messages</div>
+      </div>
+      <div class="sb-section" style="border-top:1px solid var(--rule);">
+        <div class="sb-cap">Matters</div>
+        <div class="sb-item"><span style="width:6px;height:6px;border-radius:999px;background:var(--accent);"></span>Borden Acquisition</div>
+        <div class="sb-item"><span style="width:6px;height:6px;border-radius:999px;background:var(--warning);"></span>Mercer Lease</div>
+      </div>
+    </div>
+    <div class="sb" style="width:64px;justify-self:start;">
+      <div class="sb-head" style="padding:14px;justify-content:center;">
+        <svg class="glyph" viewBox="0 0 64 64" fill="none"><path d="M42.6668 21.3333L5.3335 58.6667M46.6668 40H24.0002M53.9735 32.64C56.9757 29.6377 58.6624 25.5658 58.6624 21.32C58.6624 17.0742 56.9757 13.0022 53.9735 9.99999C50.9712 6.99774 46.8993 5.3111 42.6535 5.3111C38.4077 5.3111 34.3357 6.99774 31.3335 9.99999L13.3335 28V50.6667H36.0002L53.9735 32.64Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="sb-section" style="padding:8px;">
+        <div class="sb-item" style="justify-content:center;padding:9px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 12l9-8 9 8M5 10v10h14V10"/></svg></div>
+        <div class="sb-item active" style="justify-content:center;padding:9px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 3H6v18h12V7l-4-4z"/><path d="M14 3v4h4"/></svg></div>
+        <div class="sb-item" style="justify-content:center;padding:9px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg></div>
+        <div class="sb-item" style="justify-content:center;padding:9px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 11.5a8.38 8.38 0 0 1-15.9 3.8L3 21l5.7-2.1A8.5 8.5 0 1 0 21 11.5z"/></svg></div>
+      </div>
+    </div>
+  </div>
+  <div style="margin-top:10px;font-size:11px;color:var(--ink-3);letter-spacing:-0.01em;">Expanded · 264px and Collapsed · 64px. Active uses Ink Indigo soft.</div>
+</div>
+</body></html>

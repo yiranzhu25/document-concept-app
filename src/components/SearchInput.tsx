@@ -1,4 +1,5 @@
 import { Search, X } from 'lucide-react'
+import { useIsMobile } from '../hooks/useIsMobile'
 
 interface SearchInputProps {
   value: string
@@ -13,12 +14,14 @@ export function SearchInput({
   placeholder = 'Search…',
   width = 280,
 }: SearchInputProps) {
+  const isMobile = useIsMobile()
   return (
     <div
       style={{
         position: 'relative',
-        width: typeof width === 'number' ? `${width}px` : width,
-        flexShrink: 0,
+        // Full-width on mobile; the numeric width becomes a desktop size.
+        width: isMobile ? '100%' : typeof width === 'number' ? `${width}px` : width,
+        flexShrink: isMobile ? 1 : 0,
       }}
     >
       <Search
@@ -41,10 +44,11 @@ export function SearchInput({
         placeholder={placeholder}
         style={{
           width: '100%',
-          height: '36px',
+          height: isMobile ? '40px' : '36px',
           paddingLeft: '32px',
           paddingRight: value ? '30px' : '12px',
-          fontSize: 'var(--text-sm)',
+          // 16px on mobile prevents iOS auto-zoom on focus.
+          fontSize: isMobile ? '16px' : 'var(--text-sm)',
           color: 'var(--ink)',
           backgroundColor: 'var(--surface-1)',
           border: '1px solid var(--rule-strong)',

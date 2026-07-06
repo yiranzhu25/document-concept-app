@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8">
+<title>Data Table</title>
+<link rel="stylesheet" href="_card.css">
+<link rel="stylesheet" href="../components.css">
+<style>
+.doc-name { font-weight: 600; color: var(--ink); display: block; }
+.doc-meta { font-size: 11px; color: var(--ink-3); margin-top: 1px; }
+.row-actions {
+  display: inline-flex;
+  width: 28px; height: 28px;
+  align-items: center; justify-content: center;
+  border-radius: 4px;
+  color: var(--ink-3);
+  cursor: pointer;
+}
+.row-actions:hover { background: var(--surface-3); color: var(--ink); }
+.row-actions svg { width: 14px; height: 14px; stroke-width: 1.5; }
+</style>
+</head><body>
+<div class="card tight">
+  <div class="table-scroll">
+    <table class="cm-table" style="min-width:880px;">
+      <thead>
+        <tr>
+          <th style="width:30%;">Document</th>
+          <th>Counterparty</th>
+          <th>Jurisdiction</th>
+          <th class="num">Value</th>
+          <th>Effective</th>
+          <th>Owner</th>
+          <th class="cm-table__sticky cm-table__sticky--edge" style="--sticky-right: 52px; min-width: 120px;">Status</th>
+          <th class="cm-table__sticky" style="--sticky-right: 0; width: 52px;"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="doc-name">MSA — Borden Industries</span><span class="doc-meta">PDF · 2.4 MB · v3.4</span></td>
+          <td>Borden Industries</td>
+          <td>Delaware, USA</td>
+          <td class="num">$1,240,000</td>
+          <td style="white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--ink-3);">12 Mar 2026</td>
+          <td><span class="avatar avatar-sm"><img src="../assets/avatars/p1.svg" alt=""></span></td>
+          <td class="cm-table__sticky cm-table__sticky--edge" style="--sticky-right: 52px;"><span class="badge badge-success"><span class="dot"></span>Signed</span></td>
+          <td class="cm-table__sticky" style="--sticky-right: 0;"><span class="row-actions"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></span></td>
+        </tr>
+        <tr>
+          <td><span class="doc-name">NDA — Halberd Capital</span><span class="doc-meta">PDF · 0.6 MB · v1.0</span></td>
+          <td>Halberd Capital LLC</td>
+          <td>New York, USA</td>
+          <td class="num">—</td>
+          <td style="white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--ink-3);">11 Mar 2026</td>
+          <td><span class="avatar avatar-sm"><img src="../assets/avatars/p2.svg" alt=""></span></td>
+          <td class="cm-table__sticky cm-table__sticky--edge" style="--sticky-right: 52px;"><span class="badge badge-warning"><span class="dot"></span>Awaiting</span></td>
+          <td class="cm-table__sticky" style="--sticky-right: 0;"><span class="row-actions"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></span></td>
+        </tr>
+        <tr>
+          <td><span class="doc-name">Lease — 408 Mercer St.</span><span class="doc-meta">PDF · 5.1 MB · v2.1</span></td>
+          <td>Mercer Holdings</td>
+          <td>New York, USA</td>
+          <td class="num">$48,000/yr</td>
+          <td style="white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--ink-3);">9 Mar 2026</td>
+          <td><span class="avatar avatar-sm"><img src="../assets/avatars/p3.svg" alt=""></span></td>
+          <td class="cm-table__sticky cm-table__sticky--edge" style="--sticky-right: 52px;"><span class="badge badge-danger"><span class="dot"></span>Conflict</span></td>
+          <td class="cm-table__sticky" style="--sticky-right: 0;"><span class="row-actions"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></span></td>
+        </tr>
+        <tr>
+          <td><span class="doc-name">Employment offer — R. Cho</span><span class="doc-meta">DOCX · 0.2 MB</span></td>
+          <td>Internal</td>
+          <td>—</td>
+          <td class="num">$180,000</td>
+          <td style="white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--ink-3);">7 Mar 2026</td>
+          <td><span class="avatar avatar-sm"><img src="../assets/avatars/p4.svg" alt=""></span></td>
+          <td class="cm-table__sticky cm-table__sticky--edge" style="--sticky-right: 52px;"><span class="badge badge-info"><span class="dot"></span>In review</span></td>
+          <td class="cm-table__sticky" style="--sticky-right: 0;"><span class="row-actions"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div style="margin-top:10px;font-size:11px;color:var(--ink-3);letter-spacing:-0.01em;">Borderless · quiet header · row hover at the lightest tone. Scroll horizontally on narrow viewports — the Status and Actions columns stay pinned via <code style="font-family:'JetBrains Mono',monospace;font-size:10px;background:var(--surface-2);padding:1px 4px;border-radius:3px;">.cm-table__sticky</code> with <code style="font-family:'JetBrains Mono',monospace;font-size:10px;background:var(--surface-2);padding:1px 4px;border-radius:3px;">--sticky-right</code>.</div>
+</div>
+</body></html>

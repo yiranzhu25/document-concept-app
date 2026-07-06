@@ -1,3 +1,5 @@
+import { useIsMobile } from '../hooks/useIsMobile'
+
 interface TextareaProps {
   value: string
   onChange: (val: string) => void
@@ -9,6 +11,7 @@ interface TextareaProps {
 }
 
 export function Textarea({ value, onChange, placeholder, rows = 4, maxLength, error, disabled }: TextareaProps) {
+  const isMobile = useIsMobile()
   return (
     <div style={{ position: 'relative' }}>
       <textarea
@@ -23,7 +26,8 @@ export function Textarea({ value, onChange, placeholder, rows = 4, maxLength, er
         style={{
           width: '100%',
           padding: maxLength ? '10px 12px 24px' : '10px 12px',
-          fontSize: 'var(--text-sm)',
+          // 16px on mobile prevents iOS auto-zoom on focus (a device-default behavior).
+          fontSize: isMobile ? '16px' : 'var(--text-sm)',
           lineHeight: 1.5,
           color: 'var(--ink)',
           backgroundColor: disabled ? 'var(--surface-2)' : 'var(--surface-1)',
@@ -31,6 +35,8 @@ export function Textarea({ value, onChange, placeholder, rows = 4, maxLength, er
           borderRadius: 'var(--radius-sm)',
           outline: 'none',
           resize: 'vertical',
+          appearance: 'none',
+          WebkitAppearance: 'none',
           fontFamily: 'var(--font-sans)',
           boxSizing: 'border-box',
           cursor: disabled ? 'not-allowed' : 'text',

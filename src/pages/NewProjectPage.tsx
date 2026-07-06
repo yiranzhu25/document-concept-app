@@ -1,7 +1,6 @@
 // New Project creation page — /projects/new
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft } from 'lucide-react'
 import { useData } from '../contexts/DataContext'
 import { useToast } from '../contexts/ToastContext'
 import { Button } from '../components/Button'
@@ -11,6 +10,7 @@ import { Textarea } from '../components/Textarea'
 import { Select } from '../components/Select'
 import { MultiSelect } from '../components/MultiSelect'
 import { ConfirmModal } from '../components/Modal'
+import { useIsMobile } from '../hooks/useIsMobile'
 import { USERS, CURRENT_USER } from '../data/mockData'
 import type { Project, ProjectType } from '../data/mockData'
 
@@ -30,6 +30,7 @@ interface FormErrors {
 
 export function NewProjectPage() {
   const navigate = useNavigate()
+  const isMobile = useIsMobile()
   const { toast } = useToast()
   const { addProject } = useData()
 
@@ -89,23 +90,7 @@ export function NewProjectPage() {
   }
 
   return (
-    <div style={{ maxWidth: '680px' }}>
-      {/* Back nav */}
-      <button
-        onClick={handleCancel}
-        style={{
-          display: 'inline-flex', alignItems: 'center', gap: '6px',
-          fontSize: '13px', color: 'var(--color-text-secondary)',
-          background: 'none', border: 'none', cursor: 'pointer',
-          padding: '0 0 20px',
-          transition: `color var(--duration-fast) var(--easing-standard)`,
-        }}
-        onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--color-text-primary)' }}
-        onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--color-text-secondary)' }}
-      >
-        <ArrowLeft size={14} /> Back to Projects
-      </button>
-
+    <div style={{ maxWidth: '680px', width: '100%' }}>
       {/* Title */}
       <h1
         style={{
@@ -142,7 +127,7 @@ export function NewProjectPage() {
           />
         </FormField>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? '16px' : '20px' }}>
           <FormField label="Type of Project" required error={errors.type}>
             <Select
               value={type}
@@ -163,7 +148,7 @@ export function NewProjectPage() {
           </FormField>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? '16px' : '20px' }}>
           <FormField label="Effective Date" required error={errors.effectiveDate}>
             <Input
               type="date"

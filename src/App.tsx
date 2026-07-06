@@ -1,6 +1,8 @@
 import { lazy, Suspense } from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AppShell } from './components/AppShell'
+import { TopBarProvider } from './contexts/TopBarContext'
+import { WelcomePage } from './pages/WelcomePage'
 import { ProjectsPage } from './pages/ProjectsPage'
 import { ProjectDetailPage } from './pages/ProjectDetailPage'
 import { NewProjectPage } from './pages/NewProjectPage'
@@ -17,11 +19,11 @@ function TaskDetailSkeleton() {
     <div
       style={{
         margin: '-40px -48px',
-        height: '100vh',
+        height: '100dvh',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: 'var(--cream)',
+        backgroundColor: 'var(--surface-1)',
       }}
     >
       <div style={{ textAlign: 'center' }}>
@@ -47,8 +49,9 @@ function TaskDetailSkeleton() {
 export default function App() {
   return (
     <BrowserRouter basename="/document-concept-app">
+      <TopBarProvider>
       <Routes>
-        <Route path="/" element={<Navigate to="/projects" replace />} />
+        <Route path="/" element={<WelcomePage />} />
         <Route element={<AppShell />}>
           <Route path="/projects" element={<ProjectsPage />} />
           {/* /projects/new must come before /projects/:id */}
@@ -67,6 +70,7 @@ export default function App() {
           />
         </Route>
       </Routes>
+      </TopBarProvider>
     </BrowserRouter>
   )
 }

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8">
+<title>Side Panel</title>
+<link rel="stylesheet" href="_card.css">
+<link rel="stylesheet" href="../components.css">
+<style>
+.shell {
+  display: flex;
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  overflow: hidden;
+  height: 280px;
+  background: var(--cream);
+}
+.shell .main {
+  flex: 1;
+  padding: 16px 18px;
+  min-width: 0;
+}
+.shell .panel {
+  width: 220px;
+  flex-shrink: 0;
+  background: var(--surface-1);
+  display: flex;
+  flex-direction: column;
+}
+/* Right-side panel (default): main on left, divider on left of panel. */
+.shell--right { flex-direction: row; }
+.shell--right .panel { border-left: 1px solid var(--rule); }
+/* Left-side panel: panel comes first, divider on right of panel. */
+.shell--left { flex-direction: row; }
+.shell--left .panel { order: -1; border-right: 1px solid var(--rule); }
+
+.l { height: 5px; background: var(--surface-3); border-radius: 2px; margin: 5px 0; }
+.l.short { width: 60%; }
+
+.panel-head {
+  padding: 12px 14px;
+  display: flex; justify-content: space-between; align-items: center;
+  border-bottom: 1px solid var(--rule);
+}
+.panel-head h3 { font-size: 13px; font-weight: 600; margin: 0; }
+.panel-body { padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; overflow:hidden; }
+.note {
+  background: var(--surface-2);
+  border-left: 2px solid var(--accent);
+  padding: 7px 9px;
+  border-radius: 4px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+.note .who { font-weight: 600; color: var(--ink); font-size: 10px; display: block; margin-bottom: 1px; }
+
+.tree-item { display: flex; align-items: center; gap: 8px; padding: 5px 6px; font-size: 12px; color: var(--ink-2); border-radius: 4px; cursor: pointer; }
+.tree-item:hover { background: var(--surface-2); }
+.tree-item.is-active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.tree-item svg { width: 12px; height: 12px; color: var(--ink-3); stroke-width: 1.5; }
+.tree-item.is-active svg { color: var(--accent); }
+.tree-child { padding-left: 18px; }
+</style>
+</head><body>
+<div class="card tight">
+  <div class="stack-3">
+
+    <!-- Right-aligned panel -->
+    <div>
+      <div class="cap" style="margin-bottom:6px;">Panel on the right · comments / context</div>
+      <div class="shell shell--right">
+        <div class="main">
+          <div style="font-size:13px;font-weight:700;letter-spacing:-0.01em;margin-bottom:8px;">MSA · § 14.2 Indemnification</div>
+          <div class="l"></div><div class="l"></div><div class="l short"></div>
+          <div class="l"></div><div class="l"></div><div class="l short"></div>
+          <div class="l"></div><div class="l"></div>
+        </div>
+        <aside class="panel">
+          <div class="panel-head">
+            <h3>Comments · 3</h3>
+            <button class="btn btn-ghost btn-sm btn-icon" aria-label="Close"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M6 6l12 12M6 18L18 6"/></svg></button>
+          </div>
+          <div class="panel-body">
+            <div class="note"><span class="who">R. Cho · 09:31</span>Suggest narrowing this carve-out to gross negligence only.</div>
+            <div class="note"><span class="who">Clearmark · 09:38</span>Phrasing matches <em>Borden v. Acme</em> § 3.1 — flagged as boilerplate.</div>
+            <div class="note"><span class="who">E. Marsh · 09:44</span>Adopting Rae's redline.</div>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <!-- Left-aligned panel -->
+    <div>
+      <div class="cap" style="margin-bottom:6px;">Panel on the left · navigator / outline</div>
+      <div class="shell shell--left">
+        <aside class="panel">
+          <div class="panel-head">
+            <h3>Outline</h3>
+            <button class="btn btn-ghost btn-sm btn-icon" aria-label="Close"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M6 6l12 12M6 18L18 6"/></svg></button>
+          </div>
+          <div class="panel-body">
+            <div class="tree-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9l6 6 6-6"/></svg>1 · Definitions</div>
+            <div class="tree-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 6l6 6-6 6"/></svg>3 · Scope of Services</div>
+            <div class="tree-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9l6 6 6-6"/></svg>14 · Indemnification</div>
+            <div class="tree-item tree-child">14.1 · General</div>
+            <div class="tree-item tree-child is-active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg>14.2 · Procedure</div>
+            <div class="tree-item tree-child">14.3 · Limits</div>
+            <div class="tree-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 6l6 6-6 6"/></svg>22 · Governing Law</div>
+          </div>
+        </aside>
+        <div class="main">
+          <div style="font-size:13px;font-weight:700;letter-spacing:-0.01em;margin-bottom:8px;">MSA · § 14.2 Indemnification</div>
+          <div class="l"></div><div class="l"></div><div class="l short"></div>
+          <div class="l"></div><div class="l"></div><div class="l short"></div>
+          <div class="l"></div><div class="l"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div style="margin-top:10px;font-size:11px;color:var(--ink-3);letter-spacing:-0.01em;">Same panel chrome — flip <code style="font-family:'JetBrains Mono',monospace;font-size:10px;background:var(--surface-2);padding:1px 4px;border-radius:3px;">.shell--right</code> ↔ <code style="font-family:'JetBrains Mono',monospace;font-size:10px;background:var(--surface-2);padding:1px 4px;border-radius:3px;">.shell--left</code> to swap sides. Use right for comments, AI, metadata. Use left for outline, navigator, file tree.</div>
+</div>
+</body></html>

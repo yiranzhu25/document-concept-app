@@ -8,18 +8,35 @@ interface TabBarProps<T extends string> {
   tabs: Tab<T>[]
   active: T
   onChange: (id: T) => void
+  /**
+   * Horizontal padding of the parent container. The bottom divider bleeds out
+   * by this amount (edge-to-edge across the page) while the tabs stay aligned
+   * with the surrounding content.
+   */
+  bleedX?: number
 }
 
-export function TabBar<T extends string>({ tabs, active, onChange }: TabBarProps<T>) {
+export function TabBar<T extends string>({ tabs, active, onChange, bleedX = 0 }: TabBarProps<T>) {
   return (
     <div
       role="tablist"
+      className="cm-scroll-x"
       style={{
-        display: 'inline-flex',
+        display: 'flex',
         borderBottom: '1px solid var(--rule)',
         gap: 0,
         flexShrink: 0,
-        width: '100%',
+        // Break out of the parent's horizontal padding so the divider runs the
+        // full page width, then pad the tabs back in to stay aligned.
+        marginLeft: -bleedX,
+        marginRight: -bleedX,
+        paddingLeft: bleedX,
+        paddingRight: bleedX,
+        // Scroll horizontally instead of squashing when tabs overflow on narrow screens.
+        overflowX: 'auto',
+        // Explicitly hide the vertical axis (overflow-x:auto otherwise makes overflow-y compute to auto).
+        overflowY: 'hidden',
+        WebkitOverflowScrolling: 'touch',
       }}
     >
       {tabs.map((tab) => {
@@ -46,6 +63,7 @@ export function TabBar<T extends string>({ tabs, active, onChange }: TabBarProps
               transition: `color var(--dur-fast) var(--ease-out)`,
               marginBottom: '-1px',
               whiteSpace: 'nowrap',
+              flexShrink: 0,
               fontFamily: 'var(--font-sans)',
             }}
             onMouseEnter={(e) => {
@@ -56,7 +74,7 @@ export function TabBar<T extends string>({ tabs, active, onChange }: TabBarProps
             }}
           >
             {tab.label}
-            {/* Underline indicator */}
+            {/* Active indicator — dark, bold underline that sits on the divider */}
             {isActive && (
               <span
                 style={{
@@ -64,9 +82,9 @@ export function TabBar<T extends string>({ tabs, active, onChange }: TabBarProps
                   left: '8px',
                   right: '8px',
                   bottom: '-1px',
-                  height: '2px',
-                  backgroundColor: 'var(--accent)',
-                  borderRadius: '2px 2px 0 0',
+                  height: '3px',
+                  backgroundColor: 'var(--ink)',
+                  borderRadius: '3px 3px 0 0',
                 }}
               />
             )}

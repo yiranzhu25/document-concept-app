@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8">
+<title>Inputs &amp; Select</title>
+<link rel="stylesheet" href="_card.css">
+<link rel="stylesheet" href="../components.css">
+<style>
+/* Custom-styled select popover. Matches input chrome. */
+.select-popover {
+  position: relative;
+}
+.select-popover .select-trigger {
+  display: flex; align-items: center; justify-content: space-between;
+  height: 36px; padding: 0 12px;
+  background: var(--surface-1);
+  border: 1px solid var(--ink-3);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  color: var(--ink);
+  cursor: pointer;
+  box-shadow: 0 1px 0 0 rgba(27,24,19,0.04), 0 2px 6px -1px rgba(27,24,19,0.10);
+}
+.select-popover .select-trigger svg { color: var(--ink-3); width: 12px; height: 12px; }
+.select-popover .select-menu {
+  position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+  background: var(--surface-1);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 4px 12px -2px rgba(27,24,19,0.10), 0 2px 4px -1px rgba(27,24,19,0.06);
+  padding: 4px;
+  z-index: 5;
+}
+.select-popover .select-option {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 7px 10px;
+  font-size: 13px;
+  color: var(--ink-2);
+  border-radius: 4px;
+  cursor: pointer;
+}
+.select-popover .select-option:hover { background: var(--surface-2); color: var(--ink); }
+.select-popover .select-option.is-selected { color: var(--ink); font-weight: 500; }
+.select-popover .select-option.is-selected svg { color: var(--accent); width: 14px; height: 14px; }
+</style>
+</head><body>
+<div class="card">
+  <div class="grid-3" style="gap:20px;align-items:start;">
+    <div class="field">
+      <label class="field-label">Document name</label>
+      <input class="input" value="MSA — Borden, 2026.pdf">
+    </div>
+    <div class="field">
+      <label class="field-label">Counterparty</label>
+      <input class="input" placeholder="Search counterparties">
+    </div>
+    <div class="field">
+      <label class="field-label">Jurisdiction</label>
+      <select class="select">
+        <option>Delaware, USA</option>
+        <option>New York, USA</option>
+        <option>England &amp; Wales</option>
+      </select>
+    </div>
+    <div class="field">
+      <label class="field-label">Focused</label>
+      <input class="input" value="14.2(b)(iii)" style="border-color:var(--ink-3);box-shadow:0 1px 0 0 rgba(27,24,19,0.04),0 2px 6px -1px rgba(27,24,19,0.10);">
+    </div>
+    <div class="field">
+      <label class="field-label">Invalid</label>
+      <input class="input invalid" value="acme.borden">
+    </div>
+    <div class="field">
+      <label class="field-label">Open dropdown</label>
+      <div class="select-popover">
+        <div class="select-trigger">
+          <span>New York, USA</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="select-menu">
+          <div class="select-option">Delaware, USA</div>
+          <div class="select-option is-selected">
+            <span>New York, USA</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+          </div>
+          <div class="select-option">England &amp; Wales</div>
+          <div class="select-option">Singapore</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body></html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8">
+<title>Audit Trail</title>
+<link rel="stylesheet" href="_card.css">
+<link rel="stylesheet" href="../components.css">
+</head><body>
+<div class="card">
+  <!-- Variant label row -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start;">
+
+    <!-- ===== A. Version-segregated ===== -->
+    <div>
+      <div class="cap" style="margin-bottom:8px;">Versioned</div>
+
+      <section class="audit-version">
+        <header class="audit-version__head">
+          <div class="audit-version__label">Version 2</div>
+          <h3 class="audit-version__title">Amendment</h3>
+        </header>
+        <div class="audit-version__facts">
+          <div class="info-metric" style="font-size:12px;">
+            <span class="info-metric__pair"><span class="info-metric__label">Effective</span><span class="info-metric__value">24 Oct 2025</span></span>
+            <span class="info-metric__sep"></span>
+            <span class="info-metric__pair"><span class="info-metric__label">Approved</span><span class="info-metric__value">24 Oct 2025</span></span>
+          </div>
+        </div>
+        <button class="audit-version__toggle" aria-expanded="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+          Hide detail
+        </button>
+        <div class="audit-version__body">
+          <div class="audit-trail">
+
+            <div class="audit-action">
+              <span class="audit-action__icon audit-action__icon--ai">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v6M12 21v-2M3 12h6M21 12h-2M6 6l3 3M18 18l-3-3M6 18l3-3M18 6l-3 3"/></svg>
+              </span>
+              <div class="audit-action__main">
+                <div class="audit-action__title">AI enriched and validated</div>
+                <div class="audit-action__time">24 Oct 2025 · 12:15 EST</div>
+                <div class="audit-action__result">
+                  <div class="audit-action__result-main">
+                    <span class="audit-action__result-value">23 Jan 2035</span>
+                    <span class="audit-action__result-note audit-action__result-note--success">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12l5 5L20 7"/></svg>
+                      AI extracted · no low-confidence facts
+                    </span>
+                  </div>
+                  <a href="#" class="audit-action__result-link">View details
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                  </a>
+                </div>
+                <div class="audit-action__comments">
+                  <div class="audit-comment">
+                    <div class="audit-comment__head"><span class="audit-comment__who">E. Marsh</span><span class="audit-comment__time">24 Oct · 13:02</span></div>
+                    <div class="audit-comment__body">Cross-referenced with the parent MSA — termination dates align.</div>
+                  </div>
+                </div>
+                <button class="audit-comment-add">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                  Add comment
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <section class="audit-version">
+        <header class="audit-version__head">
+          <div class="audit-version__label">Version 1</div>
+          <h3 class="audit-version__title">Original enrichment</h3>
+        </header>
+        <div class="audit-version__facts">
+          <div class="info-metric" style="font-size:12px;">
+            <span class="info-metric__pair"><span class="info-metric__label">Effective</span><span class="info-metric__value">11 Sep 2024</span></span>
+            <span class="info-metric__sep"></span>
+            <span class="info-metric__pair"><span class="info-metric__label">Approved</span><span class="info-metric__value">11 Sep 2024</span></span>
+          </div>
+        </div>
+        <button class="audit-version__toggle" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+          Show detail
+        </button>
+      </section>
+    </div>
+
+    <!-- ===== B. Plain (no version grouping) ===== -->
+    <div>
+      <div class="cap" style="margin-bottom:8px;">Plain</div>
+
+      <div style="background:var(--surface-1);border:1px solid var(--rule);border-radius:var(--radius-md);padding:16px 18px;">
+        <div class="audit-trail">
+
+          <div class="audit-action">
+            <span class="audit-action__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></span>
+            <div class="audit-action__main">
+              <div class="audit-action__title">Manual update</div>
+              <div class="audit-action__time">25 Sep 2025 · 14:02 EST</div>
+              <div class="audit-action__result">
+                <div class="audit-action__result-main">
+                  <span class="audit-action__result-value">11 Sep 2029</span>
+                </div>
+              </div>
+              <div class="audit-action__actor">
+                <span class="avatar avatar-sm"><img src="../assets/avatars/p2.svg" alt=""></span>
+                <span>
+                  <span class="audit-action__actor-name">Kierra Lubin</span>
+                  <span class="audit-action__actor-org" style="display:block;">GBM Private</span>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="audit-action">
+            <span class="audit-action__icon audit-action__icon--ai">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v6M12 21v-2M3 12h6M21 12h-2M6 6l3 3M18 18l-3-3M6 18l3-3M18 6l-3 3"/></svg>
+            </span>
+            <div class="audit-action__main">
+              <div class="audit-action__title">AI enriched and validated</div>
+              <div class="audit-action__time">24 Sep 2025 · 12:15 EST</div>
+              <div class="audit-action__result">
+                <div class="audit-action__result-main">
+                  <span class="audit-action__result-value">10 Sep 2029</span>
+                  <span class="audit-action__result-note audit-action__result-note--warn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+                    AI extracted with issues detected
+                  </span>
+                </div>
+                <a href="#" class="audit-action__result-link">View details
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                </a>
+              </div>
+              <div class="audit-action__comments">
+                <div class="audit-comment">
+                  <div class="audit-comment__head"><span class="audit-comment__who">R. Cho</span><span class="audit-comment__time">25 Sep · 09:18</span></div>
+                  <div class="audit-comment__body">Date looks off by one day vs. the signed PDF — flagging for Kierra to confirm.</div>
+                </div>
+                <div class="audit-comment">
+                  <div class="audit-comment__head"><span class="audit-comment__who">K. Lubin</span><span class="audit-comment__time">25 Sep · 14:00</span></div>
+                  <div class="audit-comment__body">Confirmed. Corrected manually to 11 Sep.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="audit-action">
+            <span class="audit-action__icon audit-action__icon--success">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+            </span>
+            <div class="audit-action__main">
+              <div class="audit-action__title">Document approved</div>
+              <div class="audit-action__time">11 Sep 2024 · 16:40 EST</div>
+              <div class="audit-action__actor">
+                <span class="avatar avatar-sm"><img src="../assets/avatars/p1.svg" alt=""></span>
+                <span>
+                  <span class="audit-action__actor-name">Elena Marsh</span>
+                  <span class="audit-action__actor-org" style="display:block;">Partner · Bloom &amp; Levitt</span>
+                </span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</body></html>

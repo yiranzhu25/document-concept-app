@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8">
+<title>Info Display Card</title>
+<link rel="stylesheet" href="_card.css">
+<link rel="stylesheet" href="../components.css">
+<style>
+.info-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.parts { font-size: 10px; color: var(--ink-3); letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600; margin-bottom: 6px; display:flex; align-items:center; gap:4px; }
+.parts svg { width: 10px; height: 10px; color: var(--ink-4); stroke-width: 2; }
+</style>
+</head><body>
+<div class="card">
+  <div class="info-row">
+    <!-- 1. All parts on -->
+    <div>
+      <div class="parts">All parts on</div>
+      <article class="info-card">
+        <div class="info-card__top">
+          <span class="badge-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 3H6v18h12V7l-4-4z"/><path d="M14 3v4h4"/></svg></span>
+          <span class="badge badge-success badge-pill"><span class="dot"></span>Active</span>
+        </div>
+        <div>
+          <h3 class="info-card__title">Meridian Health Systems Acquisition</h3>
+          <p class="info-card__subtitle">Meridian Health Systems</p>
+        </div>
+        <div class="info-card__meta">Effective: 31 Mar 2025</div>
+        <div class="info-card__bottom">
+          <div class="info-card__owner">
+            <span class="avatar avatar-sm"><img src="../assets/avatars/p1.svg" alt=""></span>
+            <span>S. Chen</span>
+          </div>
+          <div class="avatar-stack">
+            <span class="avatar avatar-sm"><img src="../assets/avatars/p1.svg" alt=""></span>
+            <span class="avatar avatar-sm"><img src="../assets/avatars/p2.svg" alt=""></span>
+            <span class="avatar avatar-sm" style="background:var(--accent);color:var(--cream);">MW</span>
+            <span class="avatar avatar-sm" style="background:var(--surface-2);color:var(--ink-3);">+1</span>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <!-- 2. No owner row -->
+    <div>
+      <div class="parts">No owner row</div>
+      <article class="info-card">
+        <div class="info-card__top">
+          <span class="badge-icon badge-icon-warning"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 7v6l3 2"/></svg></span>
+          <span class="badge badge-warning badge-pill"><span class="dot"></span>Awaiting</span>
+        </div>
+        <div>
+          <h3 class="info-card__title">Lease — 408 Mercer Street</h3>
+          <p class="info-card__subtitle">Mercer Holdings</p>
+        </div>
+        <div class="info-card__meta">Renewal due: 14 Apr 2026</div>
+      </article>
+    </div>
+
+    <!-- 3. No subtitle, no meta -->
+    <div>
+      <div class="parts">Title + status only</div>
+      <article class="info-card">
+        <div class="info-card__top">
+          <span class="badge-icon badge-icon-danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 9v4M12 17h.01M10.3 3.86l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3.14l-8-14a2 2 0 0 0-3.4 0z"/></svg></span>
+          <span class="badge badge-danger badge-pill"><span class="dot"></span>Conflict</span>
+        </div>
+        <div>
+          <h3 class="info-card__title">MSA conflicts with Borden v. Acme precedent</h3>
+        </div>
+        <div class="info-card__bottom">
+          <div class="info-card__owner">
+            <span class="avatar avatar-sm" style="background:var(--accent);color:var(--cream);">CM</span>
+            <span>Clearmark AI</span>
+          </div>
+          <a href="#" style="font-size:12px;color:var(--accent);text-decoration:none;font-weight:500;">Review →</a>
+        </div>
+      </article>
+    </div>
+
+    <!-- 4. Minimal — no icon, no avatars -->
+    <div>
+      <div class="parts">Minimal</div>
+      <article class="info-card">
+        <div class="info-card__top">
+          <div></div>
+          <span class="badge badge-pill"><span class="dot"></span>Draft</span>
+        </div>
+        <div>
+          <h3 class="info-card__title">Amendment 2 — Borden MSA</h3>
+          <p class="info-card__subtitle">Borden Industries · Internal review</p>
+        </div>
+        <div class="info-card__meta">Created today · 0.9 MB</div>
+      </article>
+    </div>
+  </div>
+</div>
+</body></html>

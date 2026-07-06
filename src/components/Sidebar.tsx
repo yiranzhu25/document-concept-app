@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import { FolderOpen, CheckSquare, ChevronLeft, ChevronRight } from 'lucide-react'
 
@@ -16,6 +16,10 @@ const NAV_ITEMS: NavItem[] = [
 interface SidebarProps {
   collapsed: boolean
   onToggle: () => void
+  /** Mobile drawer mode — renders as a push-in drawer instead of a fixed rail. */
+  isMobile?: boolean
+  open?: boolean
+  onClose?: () => void
 }
 
 /* ── Clearmark pen/nib glyph — from design system comp-sidebar.html ── */
@@ -40,54 +44,77 @@ function ClearmarkGlyph({ size = 22 }: { size?: number }) {
   )
 }
 
-export function Sidebar({ collapsed, onToggle }: SidebarProps) {
-  const [hoveringEdge, setHoveringEdge] = useState(false)
-  const edgeRef = useRef<HTMLDivElement>(null)
+export function Sidebar({ collapsed, onToggle, isMobile = false, open = false, onClose }: SidebarProps) {
+  const [hovering, setHovering] = useState(false)
   const location = useLocation()
+
+  // On mobile the drawer is always full (never the 64px collapsed rail).
+  // On desktop, hovering the rail temporarily expands it (overlay peek) even
+  // when it is pinned collapsed.
+  const railCollapsed = isMobile ? false : (collapsed && !hovering)
 
   const isActive = (to: string) =>
     location.pathname === to || location.pathname.startsWith(to + '/')
+
+  // Close the mobile drawer whenever the route changes.
+  useEffect(() => {
+    if (isMobile && open) onClose?.()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname])
+
+  const mobileStyle: React.CSSProperties = isMobile
+    ? {
+        width:     'min(264px, 82vw)',
+        minWidth:  'min(264px, 82vw)',
+        transform: open ? 'translateX(0)' : 'translateX(-100%)',
+        transition: 'transform 220ms var(--ease-out)',
+        zIndex:    30,
+        boxShadow: open ? 'var(--shadow-lg)' : 'none',
+      }
+    : {
+        width:    railCollapsed ? 'var(--nav-collapsed)' : 'var(--nav-expanded)',
+        minWidth: railCollapsed ? 'var(--nav-collapsed)' : 'var(--nav-expanded)',
+        transition: 'width 220ms var(--ease-out), min-width 220ms var(--ease-out)',
+        zIndex:   20,
+      }
 
   return (
     <aside
       /* .sb */
       style={{
-        width:    collapsed ? 'var(--nav-collapsed)' : 'var(--nav-expanded)',
-        minWidth: collapsed ? 'var(--nav-collapsed)' : 'var(--nav-expanded)',
-        background:  'var(--cream)',
+        background:  'var(--surface-1)',
         borderRight: '1px solid var(--rule)',
-        transition:  'width 220ms var(--ease-out), min-width 220ms var(--ease-out)',
         position:    'fixed',
         top: 0, left: 0,
-        height:   '100vh',
-        zIndex:   20,
+        height:   '100dvh',
         overflow: 'visible',
         display:  'flex',
         flexDirection: 'column',
+        ...mobileStyle,
       }}
-      onMouseEnter={() => setHoveringEdge(true)}
-      onMouseLeave={() => setHoveringEdge(false)}
+      onMouseEnter={() => { if (!isMobile) setHovering(true) }}
+      onMouseLeave={() => { if (!isMobile) setHovering(false) }}
     >
 
       {/* ── .sb-head ──────────────────────────────────────────── */}
       <div
         style={{
           height:        'var(--header-height)',
-          padding:       collapsed ? '0 14px' : '0 16px',
+          padding:       railCollapsed ? '0 14px' : '0 16px',
           display:       'flex',
           alignItems:    'center',
           gap:           '10px',
           borderBottom:  '1px solid var(--rule)',
           flexShrink:    0,
           overflow:      'hidden',
-          justifyContent: collapsed ? 'center' : 'flex-start',
+          justifyContent: railCollapsed ? 'center' : 'flex-start',
           transition:    'padding 220ms var(--ease-out)',
         }}
       >
         <ClearmarkGlyph size={22} />
 
         {/* Wordmark — fades out just before width collapses */}
-        {!collapsed && (
+        {!railCollapsed && (
           <span
             style={{
               fontFamily:    'var(--font-sans)',
@@ -103,14 +130,42 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
           </span>
         )}
 
-        {/* Workspace chevron (design system shows it; inactive for now) */}
-        {!collapsed && (
-          <svg
-            style={{ marginLeft: 'auto', width: '14px', height: '14px', color: 'var(--ink-3)', flexShrink: 0 }}
-            viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"
+        {/* Collapse / expand toggle — small icon button, top-right. Desktop only. */}
+        {!railCollapsed && !isMobile && (
+          <button
+            onClick={onToggle}
+            aria-label={collapsed ? 'Pin sidebar open' : 'Collapse sidebar'}
+            title={collapsed ? 'Pin sidebar open' : 'Collapse sidebar'}
+            style={{
+              marginLeft:      'auto',
+              display:         'inline-flex',
+              alignItems:      'center',
+              justifyContent:  'center',
+              width:           '24px',
+              height:          '24px',
+              flexShrink:      0,
+              borderRadius:    'var(--radius-sm)',
+              border:          'none',
+              background:      'transparent',
+              color:           'var(--ink-3)',
+              cursor:          'pointer',
+              transition:      `background-color var(--dur-fast) var(--ease-out),
+                                 color var(--dur-fast) var(--ease-out)`,
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'var(--surface-2)'
+              e.currentTarget.style.color           = 'var(--ink)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent'
+              e.currentTarget.style.color           = 'var(--ink-3)'
+            }}
           >
-            <path d="M15 6l-6 6 6 6" />
-          </svg>
+            {collapsed
+              ? <ChevronRight size={15} strokeWidth={2} />
+              : <ChevronLeft  size={15} strokeWidth={2} />
+            }
+          </button>
         )}
       </div>
 
@@ -120,12 +175,12 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
           flex:       1,
           overflowY:  'auto',
           overflowX:  'hidden',
-          padding:    collapsed ? '8px' : '12px 8px 8px',
+          padding:    railCollapsed ? '8px' : '12px 8px 8px',
         }}
         aria-label="Primary navigation"
       >
         {/* .sb-cap — only shown expanded */}
-        {!collapsed && (
+        {!railCollapsed && (
           <div
             style={{
               fontSize:       '10px',
@@ -147,16 +202,17 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
             const Icon   = item.icon
             return (
               <li key={item.to}>
-                <NavTooltip label={item.label} disabled={!collapsed}>
+                <NavTooltip label={item.label} disabled={!railCollapsed}>
                   {/* .sb-item  /  .sb-item.active */}
                   <NavLink
                     to={item.to}
+                    onClick={() => { if (isMobile) onClose?.() }}
                     style={({ isActive: ra }) => ({
                       display:        'flex',
                       alignItems:     'center',
                       gap:            '10px',
-                      padding:        collapsed ? '9px' : '7px 12px',
-                      justifyContent: collapsed ? 'center' : 'flex-start',
+                      padding:        isMobile ? '11px 12px' : railCollapsed ? '9px' : '7px 12px',
+                      justifyContent: railCollapsed ? 'center' : 'flex-start',
                       borderRadius:   'var(--radius-sm)',   /* 6px */
                       fontFamily:     'var(--font-sans)',
                       fontSize:       'var(--text-sm)',     /* 13px */
@@ -192,7 +248,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                         color: active ? 'var(--accent)' : 'var(--ink-3)',
                       }}
                     />
-                    {!collapsed && (
+                    {!railCollapsed && (
                       <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {item.label}
                       </span>
@@ -209,11 +265,11 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
       <div
         style={{
           borderTop:  '1px solid var(--rule)',
-          padding:    collapsed ? '8px' : '8px',
+          padding:    railCollapsed ? '8px' : '8px',
           flexShrink: 0,
         }}
       >
-        <NavTooltip label="Sarah Chen — Senior Reviewer" disabled={!collapsed}>
+        <NavTooltip label="Sarah Chen — Senior Reviewer" disabled={!railCollapsed}>
           {/* treated as a .sb-item */}
           <button
             style={{
@@ -221,8 +277,8 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
               alignItems:      'center',
               gap:             '10px',
               width:           '100%',
-              padding:         collapsed ? '9px' : '7px 12px',
-              justifyContent:  collapsed ? 'center' : 'flex-start',
+              padding:         railCollapsed ? '9px' : '7px 12px',
+              justifyContent:  railCollapsed ? 'center' : 'flex-start',
               borderRadius:    'var(--radius-sm)',
               backgroundColor: 'transparent',
               border:          'none',
@@ -256,7 +312,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
               SC
             </span>
 
-            {!collapsed && (
+            {!railCollapsed && (
               <span style={{ display: 'flex', flexDirection: 'column', textAlign: 'left', overflow: 'hidden', minWidth: 0 }}>
                 <span
                   style={{
@@ -287,53 +343,6 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         </NavTooltip>
       </div>
 
-      {/* ── Collapse toggle ───────────────────────────────────── */}
-      <div
-        ref={edgeRef}
-        style={{
-          position:      'absolute',
-          right:         '-13px',
-          top:           '50%',
-          transform:     'translateY(-50%)',
-          zIndex:        30,
-          opacity:       hoveringEdge ? 1 : 0,
-          transition:    `opacity var(--dur-fast) var(--ease-out)`,
-          pointerEvents: hoveringEdge ? 'auto' : 'none',
-        }}
-      >
-        <button
-          onClick={onToggle}
-          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          style={{
-            display:         'flex',
-            alignItems:      'center',
-            justifyContent:  'center',
-            width:           '26px',
-            height:          '26px',
-            borderRadius:    '50%',
-            backgroundColor: 'var(--cream)',
-            border:          '1px solid var(--rule-strong)',
-            boxShadow:       'var(--shadow-sm)',
-            cursor:          'pointer',
-            color:           'var(--ink-3)',
-            transition:      `background-color var(--dur-fast) var(--ease-out),
-                               color var(--dur-fast) var(--ease-out)`,
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = 'var(--surface-2)'
-            e.currentTarget.style.color           = 'var(--ink)'
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'var(--cream)'
-            e.currentTarget.style.color           = 'var(--ink-3)'
-          }}
-        >
-          {collapsed
-            ? <ChevronRight size={12} strokeWidth={2} />
-            : <ChevronLeft  size={12} strokeWidth={2} />
-          }
-        </button>
-      </div>
     </aside>
   )
 }

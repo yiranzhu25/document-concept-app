@@ -8,6 +8,7 @@ import { Avatar, AvatarStack } from '../components/Avatar'
 import { ActivityLog } from '../components/ActivityLog'
 import { Button } from '../components/Button'
 import { useToast } from '../contexts/ToastContext'
+import { useIsMobile } from '../hooks/useIsMobile'
 import type { ProjectType } from '../data/mockData'
 import { INITIAL_AUDIT } from '../data/task1Detail'
 import type { AuditEntry } from '../data/task1Detail'
@@ -55,6 +56,7 @@ function genericAudit(projectName: string, ownerName: string, effectiveDate: str
 export function ProjectDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const isMobile = useIsMobile()
   const { toast } = useToast()
   const { projects, tasks, updateProject } = useData()
   const [menuOpen, setMenuOpen] = useState(false)
@@ -110,22 +112,6 @@ export function ProjectDetailPage() {
 
   return (
     <div>
-      {/* Back nav */}
-      <button
-        onClick={() => navigate('/projects')}
-        style={{
-          display: 'inline-flex', alignItems: 'center', gap: '6px',
-          fontSize: '13px', color: 'var(--color-text-secondary)',
-          background: 'none', border: 'none', cursor: 'pointer',
-          padding: '0 0 16px',
-          transition: `color var(--duration-fast) var(--easing-standard)`,
-        }}
-        onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--color-text-primary)' }}
-        onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--color-text-secondary)' }}
-      >
-        <ArrowLeft size={14} /> Back to Projects
-      </button>
-
       {/* Project header */}
       <div
         style={{
@@ -230,11 +216,11 @@ export function ProjectDetailPage() {
         </div>
       </div>
 
-      {/* Two-column content */}
-      <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start' }}>
+      {/* Two-column content (stacks on mobile) */}
+      <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? '20px' : '24px', alignItems: 'flex-start' }}>
 
         {/* Left: Task list (65%) */}
-        <div style={{ flex: '0 0 calc(65% - 12px)', minWidth: 0 }}>
+        <div style={{ flex: isMobile ? '1 1 auto' : '0 0 calc(65% - 12px)', width: isMobile ? '100%' : undefined, minWidth: 0 }}>
           <div
             style={{
               display: 'flex',
@@ -358,7 +344,7 @@ export function ProjectDetailPage() {
         </div>
 
         {/* Right: Activity log (35%) */}
-        <div style={{ flex: '0 0 calc(35% - 12px)' }}>
+        <div style={{ flex: isMobile ? '1 1 auto' : '0 0 calc(35% - 12px)', width: isMobile ? '100%' : undefined, minWidth: 0 }}>
           <h2 style={{ margin: '0 0 16px', fontSize: '15px', fontWeight: 600, color: 'var(--color-text-primary)' }}>
             Activity
           </h2>

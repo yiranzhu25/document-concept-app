@@ -10,12 +10,14 @@ import { EmptyState } from '../components/EmptyState'
 import { useToast } from '../contexts/ToastContext'
 import { useData } from '../contexts/DataContext'
 import { useDebounce } from '../hooks/useDebounce'
+import { useIsMobile } from '../hooks/useIsMobile'
 import { CURRENT_USER } from '../data/mockData'
 
 type FilterMode = 'all' | 'mine'
 
 export function ProjectsPage() {
   const navigate = useNavigate()
+  const isMobile = useIsMobile()
   const { toast } = useToast()
   const { projects, updateProject } = useData()
   const [filterMode, setFilterMode] = useState<FilterMode>('mine')
@@ -126,8 +128,8 @@ export function ProjectsPage() {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-            gap: '24px',
+            gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(320px, 1fr))',
+            gap: isMobile ? '16px' : '24px',
           }}
         >
           {filtered.map((project) => (

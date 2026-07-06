@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { useIsMobile } from '../hooks/useIsMobile'
 
 interface PageHeaderProps {
   title: string
@@ -7,9 +8,18 @@ interface PageHeaderProps {
 }
 
 export function PageHeader({ title, description, action }: PageHeaderProps) {
+  const isMobile = useIsMobile()
   return (
-    <header style={{ marginBottom: 'var(--space-8)', paddingBottom: 'var(--space-6)', borderBottom: '1px solid var(--rule)' }}>
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '16px' }}>
+    <header style={{ marginBottom: isMobile ? 'var(--space-6)' : 'var(--space-8)', paddingBottom: 'var(--space-6)', borderBottom: '1px solid var(--rule)' }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: isMobile ? 'stretch' : 'flex-start',
+          flexDirection: isMobile ? 'column' : 'row',
+          justifyContent: 'space-between',
+          gap: isMobile ? '12px' : '16px',
+        }}
+      >
         <div>
           <h1
             style={{

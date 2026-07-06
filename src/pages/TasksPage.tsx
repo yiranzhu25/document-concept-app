@@ -11,6 +11,7 @@ import { EmptyState } from '../components/EmptyState'
 import { useToast } from '../contexts/ToastContext'
 import { useData } from '../contexts/DataContext'
 import { useDebounce } from '../hooks/useDebounce'
+import { useIsMobile } from '../hooks/useIsMobile'
 import { CURRENT_USER, USERS } from '../data/mockData'
 import type { User } from '../data/mockData'
 
@@ -48,6 +49,7 @@ const ACTIONS_COL_WIDTH = 44
 export function TasksPage() {
   const { toast }   = useToast()
   const navigate    = useNavigate()
+  const isMobile    = useIsMobile()
   const { projects, tasks, updateTask } = useData()
 
   const [filterMode, setFilterMode] = useState<FilterMode>('mine')
@@ -145,8 +147,59 @@ export function TasksPage() {
         <SearchInput value={search} onChange={setSearch} placeholder="Search tasks…" width={240} />
       </div>
 
-      {/* ── Data table ─────────────────────────────────────────────────────── */}
-      {filtered.length === 0 ? emptyState : (
+      {/* ── Mobile: stacked card list ─────────────────────────────────────── */}
+      {filtered.length === 0 ? emptyState : isMobile ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          {filtered.map((task) => {
+            const overdue = isOverdue(task.dueDate)
+            return (
+              <button
+                key={task.id}
+                onClick={() => navigate(`/tasks/${task.id}`)}
+                style={{
+                  display: 'flex', flexDirection: 'column', gap: '10px',
+                  width: '100%', textAlign: 'left',
+                  padding: '14px',
+                  backgroundColor: 'var(--surface-1)',
+                  border: '1px solid var(--rule)',
+                  borderRadius: 'var(--radius-lg)',
+                  cursor: 'pointer',
+                  fontFamily: 'var(--font-sans)',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px' }}>
+                  <span style={{ fontWeight: 600, fontSize: 'var(--text-base)', color: 'var(--ink)', lineHeight: 'var(--leading-snug)' }}>
+                    {task.name}
+                  </span>
+                  <Badge variant={statusToBadgeVariant(task.status)} label={task.status} dot />
+                </div>
+
+                <div style={{ fontSize: 'var(--text-sm)', color: 'var(--ink-3)' }}>
+                  {task.project} · {task.client}
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
+                    <Avatar initials={task.assignee.initials} name={task.assignee.name} size={22} />
+                    <span style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-2)', whiteSpace: 'nowrap' }}>
+                      {task.assignee.name.split(' ')[0]}
+                    </span>
+                    <Badge variant="priority" value={task.priority} />
+                  </div>
+                  <span style={{
+                    fontSize: 'var(--text-xs)', whiteSpace: 'nowrap',
+                    fontVariantNumeric: 'tabular-nums',
+                    color: overdue ? 'var(--danger)' : 'var(--ink-3)',
+                    fontWeight: overdue ? 500 : 400,
+                  }}>
+                    {formatDate(task.dueDate)}
+                  </span>
+                </div>
+              </button>
+            )
+          })}
+        </div>
+      ) : (
         <div className="table-scroll">
           <table className="cm-table" style={{ minWidth: '960px' }}>
 

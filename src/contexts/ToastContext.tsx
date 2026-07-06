@@ -63,7 +63,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
           display: 'flex',
           flexDirection: 'column',
           gap: '8px',
-          width: '320px',
+          width: 'min(320px, calc(100vw - 32px))',
           pointerEvents: 'none',
         }}
       >

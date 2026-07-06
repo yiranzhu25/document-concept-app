@@ -1,6 +1,7 @@
 import { useEffect, type ReactNode } from 'react'
 import { X, AlertTriangle, AlertCircle } from 'lucide-react'
 import { Button } from './Button'
+import { useIsMobile } from '../hooks/useIsMobile'
 
 // ─── Base Modal ──────────────────────────────────────────────────────────────
 
@@ -25,6 +26,7 @@ export function Modal({
   size = 'md',
   disableBackdropClick = false,
 }: ModalProps) {
+  const isMobile = useIsMobile()
   useEffect(() => {
     if (!open) return
     const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
@@ -52,7 +54,7 @@ export function Modal({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '24px',
+        padding: isMobile ? '16px' : '24px',
         animation: 'fadeIn var(--dur-slow) var(--ease-out)',
       }}
     >
@@ -65,7 +67,7 @@ export function Modal({
           boxShadow: 'var(--shadow-lg)',
           width: '100%',
           maxWidth,
-          maxHeight: 'calc(100vh - 48px)',
+          maxHeight: isMobile ? 'calc(100dvh - 32px)' : 'calc(100vh - 48px)',
           display: 'flex',
           flexDirection: 'column',
           animation: 'slideUp var(--dur-slow) var(--ease-out)',
@@ -184,6 +186,7 @@ export function ConfirmModal({
   cancelLabel = 'Cancel',
   variant = 'neutral',
 }: ConfirmModalProps) {
+  const isMobile = useIsMobile()
   useEffect(() => {
     if (!open) return
     const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
@@ -212,7 +215,7 @@ export function ConfirmModal({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '24px',
+        padding: isMobile ? '16px' : '24px',
         animation: 'fadeIn var(--dur-slow) var(--ease-out)',
       }}
     >

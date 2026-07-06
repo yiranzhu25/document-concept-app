@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import {
-  ArrowLeft, FileText, Shield, Handshake, Key,
+  FileText, Shield, Handshake, Key,
   Sparkles, CheckCircle, XCircle, Circle,
 } from 'lucide-react'
 import { useData } from '../contexts/DataContext'
@@ -186,7 +186,6 @@ export function NewTaskPage() {
     return () => document.removeEventListener('keydown', handler)
   }, [pageState])
 
-  const backLabel = paramId ? 'Back to Project' : 'Back to Tasks'
   const TypeIcon = project ? TYPE_ICONS[project.type] : FileText
   const allComplete = STEPS.every((s) => stepStatuses.get(s.id) === 'complete')
 
@@ -196,22 +195,6 @@ export function NewTaskPage() {
         @keyframes spin { to { transform: rotate(360deg) } }
         @keyframes pulse-ai { 0%,100% { opacity: 1 } 50% { opacity: 0.4 } }
       `}</style>
-
-      {/* Back nav */}
-      <button
-        onClick={handleCancel}
-        style={{
-          display: 'inline-flex', alignItems: 'center', gap: '6px',
-          fontSize: '13px', color: 'var(--color-text-secondary)',
-          background: 'none', border: 'none', cursor: 'pointer',
-          padding: '0 0 20px',
-          transition: `color var(--duration-fast) var(--easing-standard)`,
-        }}
-        onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--color-text-primary)' }}
-        onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--color-text-secondary)' }}
-      >
-        <ArrowLeft size={14} /> {backLabel}
-      </button>
 
       {/* Project selector (shown when no project is pre-selected) */}
       {!rawProjectId && (
