@@ -39,7 +39,7 @@ jobs:
         run: npm run build
 
       - name: Deploy to gh-pages
-        run: npx gh-pages -d dist -r "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" -u "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
+        run: npx gh-pages -d dist -r "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
         env:
           # Token-embedded remote URL lets gh-pages authenticate the push
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
